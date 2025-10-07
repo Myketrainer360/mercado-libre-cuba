@@ -1,5 +1,22 @@
 # CubanFreeMarket
 
+Marketplace moderno per Cuba sviluppato con Angular 19.
+
+## 🚀 Caratteristiche
+
+- **Profile System**: Gestione completa del profilo utente con statistiche, recensioni e impostazioni
+- **Messaging System**: Chat in tempo reale tra utenti
+- **Responsive Design**: Ottimizzato per desktop, tablet e mobile
+- **Dark Mode**: Supporto per tema scuro
+- **Standalone Components**: Utilizzo delle ultime funzionalità di Angular 19
+
+## 🛠️ Tecnologie
+
+- Angular 19
+- TypeScript
+- SCSS
+- RxJS
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.8.
 
 ## Development server
