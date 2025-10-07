@@ -1,0 +1,377 @@
+/* ==========================================
+   PROFILE TABS COMPONENT - STILI SCSS
+   ========================================== */
+
+/* Variabili */
+$primary: #2196f3;
+$text-primary: #212121;
+$text-secondary: #757575;
+$border-color: #e0e0e0;
+
+/* ==========================================
+   CONTAINER PRINCIPALE
+   ========================================== */
+
+.profile-tabs {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+
+/* ==========================================
+   CONTAINER TAB
+   ========================================== */
+
+.tabs-container {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+
+  /* Nasconde scrollbar ma mantiene funzionalità */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  /* Indicatore di scroll (opzionale) */
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 40px;
+    height: 100%;
+    background: linear-gradient(to left, white, transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:not(:hover)::after {
+    opacity: 0;
+  }
+}
+
+/* ==========================================
+   PULSANTE TAB
+   ========================================== */
+
+.tab-button {
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 20px;
+  border: none;
+  background: transparent;
+  color: $text-secondary;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  white-space: nowrap;
+
+  /* Bordo inferiore */
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: transparent;
+    transition: all 0.3s ease;
+  }
+
+  /* Hover */
+  &:hover:not(.active) {
+    background: rgba(33, 150, 243, 0.05);
+    color: $primary;
+  }
+
+  /* Active */
+  &.active {
+    color: $primary;
+    font-weight: 600;
+
+    &::after {
+      background: $primary;
+    }
+
+    .tab-icon {
+      transform: scale(1.1);
+    }
+  }
+
+  /* Focus */
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: -2px;
+    z-index: 1;
+  }
+}
+
+/* ==========================================
+   ELEMENTI TAB
+   ========================================== */
+
+.tab-icon {
+  font-size: 24px;
+  transition: transform 0.3s ease;
+  display: block;
+}
+
+.tab-label {
+  display: block;
+  letter-spacing: 0.3px;
+}
+
+/* Badge notifiche */
+.notification-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: #f44336;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(244, 67, 54, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* ==========================================
+   LAYOUT ALTERNATIVO: COMPATTO
+   ========================================== */
+
+.tabs-container.compact {
+  .tab-button {
+    flex-direction: row;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+
+  .tab-icon {
+    font-size: 20px;
+  }
+
+  .tab-label {
+    font-size: 14px;
+  }
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .tab-button {
+    min-width: 100px;
+    padding: 14px 16px;
+  }
+
+  .tab-icon {
+    font-size: 22px;
+  }
+
+  .tab-label {
+    font-size: 14px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .profile-tabs {
+    border-radius: 12px;
+  }
+
+  .tabs-container {
+    justify-content: flex-start;
+
+    /* Mostra indicatore di scroll su mobile */
+    &::after {
+      opacity: 1;
+    }
+  }
+
+  .tab-button {
+    min-width: 90px;
+    padding: 12px 12px;
+    gap: 6px;
+  }
+
+  .tab-icon {
+    font-size: 20px;
+  }
+
+  .tab-label {
+    font-size: 13px;
+  }
+
+  .notification-badge {
+    top: 8px;
+    right: 8px;
+    min-width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+}
+
+/* Mobile piccolo - Layout compatto forzato */
+@media (max-width: 480px) {
+  .tab-button {
+    flex-direction: row;
+    min-width: auto;
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .tab-icon {
+    font-size: 18px;
+  }
+
+  .tab-label {
+    font-size: 12px;
+  }
+
+  /* Nasconde label su schermi molto piccoli */
+  .tab-button:not(.active) .tab-label {
+    display: none;
+  }
+}
+
+/* ==========================================
+   VARIANTE: TABS VERTICALI (opzionale)
+   ========================================== */
+
+.profile-tabs.vertical {
+  .tabs-container {
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .tab-button {
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+
+    &::after {
+      top: 0;
+      bottom: 0;
+      left: auto;
+      right: 0;
+      width: 3px;
+      height: 100%;
+    }
+  }
+}
+
+/* ==========================================
+   DARK MODE
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+  .profile-tabs {
+    background: #1e1e1e;
+  }
+
+  .tab-button {
+    color: #9e9e9e;
+
+    &:hover:not(.active) {
+      background: rgba(33, 150, 243, 0.1);
+      color: #64b5f6;
+    }
+
+    &.active {
+      color: #64b5f6;
+    }
+  }
+
+  .tabs-container::after {
+    background: linear-gradient(to left, #1e1e1e, transparent);
+  }
+}
+
+/* ==========================================
+   ANIMAZIONI
+   ========================================== */
+
+/* Animazione cambio tab */
+@keyframes tabChange {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Applicata al contenuto che cambia */
+.tab-content {
+  animation: tabChange 0.3s ease;
+}
+
+/* ==========================================
+   ACCESSIBILITÀ
+   ========================================== */
+
+/* Focus visibile per navigazione da tastiera */
+.tab-button:focus-visible {
+  outline: 2px solid $primary;
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+/* Migliore contrasto per utenti con problemi di vista */
+@media (prefers-contrast: high) {
+  .tab-button {
+    border: 1px solid transparent;
+
+    &.active {
+      border-color: $primary;
+    }
+  }
+}
+
+/* Riduce animazioni per utenti che preferiscono meno movimento */
+@media (prefers-reduced-motion: reduce) {
+  .tab-button,
+  .tab-icon,
+  .notification-badge,
+  .tab-content {
+    animation: none;
+    transition: none;
+  }
+}

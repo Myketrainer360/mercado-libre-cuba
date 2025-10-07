@@ -1,0 +1,776 @@
+/* ==========================================
+   MY ADS LIST COMPONENT - STILI SCSS
+   ========================================== */
+
+$primary: #2196f3;
+$success: #4caf50;
+$warning: #ff9800;
+$danger: #f44336;
+$text-primary: #212121;
+$text-secondary: #757575;
+$border-color: #e0e0e0;
+
+/* ==========================================
+   CONTAINER PRINCIPALE
+   ========================================== */
+
+.my-ads-section {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ==========================================
+   HEADER
+   ========================================== */
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.section-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0 0 8px 0;
+}
+
+.section-description {
+  font-size: 16px;
+  color: $text-secondary;
+  margin: 0;
+}
+
+.create-ad-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background: darken($primary, 10%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.button-icon {
+  font-size: 18px;
+}
+
+/* ==========================================
+   FILTRI
+   ========================================== */
+
+.ads-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid $border-color;
+}
+
+.filter-chip {
+  padding: 10px 20px;
+  border: 2px solid $border-color;
+  background: white;
+  color: $text-secondary;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(.active) {
+    border-color: $primary;
+    color: $primary;
+    background: rgba(33, 150, 243, 0.05);
+  }
+
+  &.active {
+    background: $primary;
+    border-color: $primary;
+    color: white;
+  }
+}
+
+/* ==========================================
+   ORDINAMENTO
+   ========================================== */
+
+.ads-sorting {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.sort-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-secondary;
+}
+
+.sort-select {
+  padding: 8px 16px;
+  border: 2px solid $border-color;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-primary;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: $primary;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+  }
+}
+
+/* ==========================================
+   ERROR STATE
+   ========================================== */
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 64px;
+  margin-bottom: 24px;
+}
+
+.error-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0 0 12px 0;
+}
+
+.error-message {
+  font-size: 16px;
+  color: $text-secondary;
+  margin: 0 0 24px 0;
+}
+
+.retry-button {
+  padding: 12px 24px;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: darken($primary, 10%);
+  }
+}
+
+/* ==========================================
+   LOADING SKELETON
+   ========================================== */
+
+.loading-ads {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.skeleton-ad-card {
+  background: #f5f5f5;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.skeleton-image {
+  width: 100%;
+  padding-top: 66.67%; /* 3:2 aspect ratio */
+  background: linear-gradient(90deg, #e0e0e0 25%, #d0d0d0 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-line {
+  height: 14px;
+  background: linear-gradient(90deg, #e0e0e0 25%, #d0d0d0 50%, #e0e0e0 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  animation: shimmer 1.5s ease-in-out infinite;
+
+  &.large {
+    height: 18px;
+    width: 80%;
+  }
+
+  &.medium {
+    width: 60%;
+  }
+
+  &.small {
+    width: 40%;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ==========================================
+   EMPTY STATE
+   ========================================== */
+
+.empty-ads {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 72px;
+  margin-bottom: 24px;
+  opacity: 0.5;
+}
+
+.empty-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0 0 12px 0;
+}
+
+.empty-description {
+  font-size: 16px;
+  color: $text-secondary;
+  margin: 0 0 32px 0;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.create-ad-button-large {
+  padding: 14px 32px;
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: 28px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: darken($primary, 10%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(33, 150, 243, 0.3);
+  }
+}
+
+/* ==========================================
+   GRID ANNUNCI
+   ========================================== */
+
+.ads-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+/* ==========================================
+   CARD ANNUNCIO
+   ========================================== */
+
+.ad-card {
+  background: white;
+  border: 2px solid $border-color;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-color: $primary;
+  }
+
+  &.inactive {
+    opacity: 0.7;
+  }
+}
+
+/* Badge stato */
+.status-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+  &.active {
+    background: $success;
+    color: white;
+  }
+
+  &.paused {
+    background: $warning;
+    color: white;
+  }
+
+  &.completed {
+    background: #9e9e9e;
+    color: white;
+  }
+
+  &.expired {
+    background: $danger;
+    color: white;
+  }
+}
+
+/* Immagine */
+.ad-image-container {
+  position: relative;
+  width: 100%;
+  padding-top: 66.67%; /* 3:2 aspect ratio */
+  overflow: hidden;
+  background: #f5f5f5;
+  cursor: pointer;
+}
+
+.ad-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+
+  .ad-card:hover & {
+    transform: scale(1.05);
+  }
+}
+
+/* Overlay statistiche */
+.ad-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  display: flex;
+  gap: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  .ad-card:hover & {
+    opacity: 1;
+  }
+}
+
+.overlay-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.stat-icon {
+  font-size: 16px;
+}
+
+/* Contenuto */
+.ad-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ad-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ad-title {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+  line-height: 1.4;
+  cursor: pointer;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  &:hover {
+    color: $primary;
+  }
+}
+
+/* Menu azioni */
+.ad-actions-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.menu-button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: $text-secondary;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f5f5f5;
+    color: $text-primary;
+  }
+}
+
+.actions-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  overflow: hidden;
+  z-index: 1000;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.action-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: $text-primary;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+
+  &.danger {
+    color: $danger;
+
+    &:hover {
+      background: #ffebee;
+    }
+  }
+}
+
+.action-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: $border-color;
+  margin: 4px 0;
+}
+
+/* Prezzo */
+.ad-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.price-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: $primary;
+}
+
+.price-free {
+  font-size: 22px;
+  font-weight: 700;
+  color: $success;
+}
+
+.price-negotiable {
+  font-size: 14px;
+  color: $text-secondary;
+  font-weight: 500;
+}
+
+/* Meta info */
+.ad-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: $text-secondary;
+}
+
+.meta-icon {
+  font-size: 14px;
+}
+
+/* Statistiche */
+.ad-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid $border-color;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: $text-secondary;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 1024px) {
+  .ads-grid,
+  .loading-ads {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .my-ads-section {
+    padding: 24px 16px;
+    border-radius: 12px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .create-ad-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ads-filters {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 12px;
+  }
+
+  .ads-grid,
+  .loading-ads {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .ad-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 24px;
+  }
+
+  .filter-chip {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .ad-price {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .price-value,
+  .price-free {
+    font-size: 20px;
+  }
+}
+
+/* ==========================================
+   DARK MODE
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+  .my-ads-section {
+    background: #1e1e1e;
+  }
+
+  .section-title {
+    color: #e0e0e0;
+  }
+
+  .section-description {
+    color: #9e9e9e;
+  }
+
+  .filter-chip {
+    background: #2a2a2a;
+    border-color: #444;
+    color: #9e9e9e;
+
+    &:hover:not(.active) {
+      background: rgba(33, 150, 243, 0.1);
+      border-color: #64b5f6;
+      color: #64b5f6;
+    }
+  }
+
+  .ad-card {
+    background: #2a2a2a;
+    border-color: #444;
+  }
+
+  .ad-title {
+    color: #e0e0e0;
+  }
+
+  .meta-item {
+    color: #9e9e9e;
+  }
+
+  .stat-label {
+    color: #9e9e9e;
+  }
+
+  .stat-value {
+    color: #e0e0e0;
+  }
+
+  .menu-button {
+    color: #9e9e9e;
+
+    &:hover {
+      background: #333;
+      color: #e0e0e0;
+    }
+  }
+
+  .actions-dropdown {
+    background: #2a2a2a;
+    border-color: #444;
+  }
+
+  .action-item {
+    color: #e0e0e0;
+
+    &:hover {
+      background: #333;
+    }
+  }
+}

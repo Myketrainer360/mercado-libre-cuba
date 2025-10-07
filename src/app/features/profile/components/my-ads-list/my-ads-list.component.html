@@ -1,0 +1,276 @@
+<section class="my-ads-section">
+  <!-- Header con filtri e azioni -->
+  <div class="section-header">
+    <div class="header-left">
+      <h2 class="section-title">
+        📢 {{ isOwnProfile ? "Mis Anuncios" : "Anuncios de " + userName }}
+      </h2>
+      <p class="section-description" *ngIf="!isLoading && !error">
+        {{ getFilteredAds().length }} anuncio{{
+          getFilteredAds().length !== 1 ? "s" : ""
+        }}
+        {{ getStatusText() }}
+      </p>
+    </div>
+
+    <div class="header-actions" *ngIf="isOwnProfile && !isLoading">
+      <button class="create-ad-button" (click)="onCreateAd.emit()">
+        <span class="button-icon">➕</span>
+        <span class="button-text">Crear Anuncio</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtri per stato degli annunci (solo per proprio profilo) -->
+  <div class="ads-filters" *ngIf="isOwnProfile && !isLoading && !error">
+    <button
+      class="filter-chip"
+      [class.active]="selectedFilter === 'all'"
+      (click)="setFilter('all')"
+    >
+      🏷️ Todos ({{ getTotalByStatus("all") }})
+    </button>
+
+    <button
+      class="filter-chip"
+      [class.active]="selectedFilter === 'active'"
+      (click)="setFilter('active')"
+    >
+      ✅ Activos ({{ getTotalByStatus("active") }})
+    </button>
+
+    <button
+      class="filter-chip"
+      [class.active]="selectedFilter === 'paused'"
+      (click)="setFilter('paused')"
+    >
+      ⏸️ Pausados ({{ getTotalByStatus("paused") }})
+    </button>
+
+    <button
+      class="filter-chip"
+      [class.active]="selectedFilter === 'completed'"
+      (click)="setFilter('completed')"
+    >
+      ✔️ Completados ({{ getTotalByStatus("completed") }})
+    </button>
+
+    <button
+      class="filter-chip"
+      [class.active]="selectedFilter === 'expired'"
+      (click)="setFilter('expired')"
+    >
+      ⏰ Expirados ({{ getTotalByStatus("expired") }})
+    </button>
+  </div>
+
+  <!-- Ordinamento -->
+  <div
+    class="ads-sorting"
+    *ngIf="!isLoading && !error && getFilteredAds().length > 0"
+  >
+    <label class="sort-label">Ordenar por:</label>
+    <select
+      class="sort-select"
+      [(ngModel)]="sortBy"
+      (change)="onSortChange()"
+      title="Selecciona el criterio de ordenamiento"
+    >
+      <option value="recent">Más recientes</option>
+      <option value="oldest">Más antiguos</option>
+      <option value="views">Más vistos</option>
+      <option value="contacts">Más contactados</option>
+      <option value="price-high">Precio: Mayor a menor</option>
+      <option value="price-low">Precio: Menor a mayor</option>
+    </select>
+  </div>
+
+  <!-- Error state -->
+  <div class="error-state" *ngIf="error && !isLoading">
+    <div class="error-icon">⚠️</div>
+    <h3 class="error-title">Error al cargar los anuncios</h3>
+    <p class="error-message">{{ error }}</p>
+    <button class="retry-button" (click)="retryLoad()">🔄 Reintentar</button>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div class="loading-ads" *ngIf="isLoading">
+    <div class="skeleton-ad-card" *ngFor="let item of [1, 2, 3, 4]">
+      <div class="skeleton-image"></div>
+      <div class="skeleton-content">
+        <div class="skeleton-line large"></div>
+        <div class="skeleton-line medium"></div>
+        <div class="skeleton-line small"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div
+    class="empty-ads"
+    *ngIf="!isLoading && !error && getFilteredAds().length === 0"
+  >
+    <div class="empty-icon">📢</div>
+    <h3 class="empty-title">
+      {{
+        selectedFilter === "all"
+          ? isOwnProfile
+            ? "No tienes anuncios"
+            : "Este usuario no tiene anuncios"
+          : "No hay anuncios " + getFilteredStatusText()
+      }}
+    </h3>
+    <p class="empty-description">
+      {{
+        isOwnProfile
+          ? "Crea tu primer anuncio para empezar a vender o intercambiar."
+          : "Este usuario aún no ha publicado ningún anuncio."
+      }}
+    </p>
+    <button
+      class="create-ad-button-large"
+      *ngIf="isOwnProfile"
+      (click)="onCreateAd.emit()"
+    >
+      ➕ Crear Mi Primer Anuncio
+    </button>
+  </div>
+
+  <!-- Grid annunci -->
+  <div
+    class="ads-grid"
+    *ngIf="!isLoading && !error && getFilteredAds().length > 0"
+  >
+    <article
+      class="ad-card"
+      *ngFor="let ad of getSortedAds(); trackBy: trackByAdId"
+      [class.inactive]="ad.status !== 'active'"
+    >
+      <!-- Badge stato (solo per proprio profilo) -->
+      <div class="status-badge" *ngIf="isOwnProfile" [class]="ad.status">
+        {{ getStatusLabel(ad.status) }}
+      </div>
+
+      <!-- Immagine annuncio -->
+      <div class="ad-image-container" (click)="onViewAd.emit(ad.id)">
+        <img
+          alt="{{ ad.title }}"
+          [src]="ad.images[0] || '/assets/images/no-image.png'"
+          [alt]="ad.title"
+          class="ad-image"
+          loading="lazy"
+        />
+
+        <!-- Overlay info rapide -->
+        <div class="ad-overlay">
+          <div class="overlay-stat">
+            <span class="stat-icon">👁️</span>
+            <span class="stat-value">{{ ad.viewCount || 0 }}</span>
+          </div>
+          <div class="overlay-stat">
+            <span class="stat-icon">💬</span>
+            <span class="stat-value">{{ ad.contactCount || 0 }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenuto annuncio -->
+      <div class="ad-content">
+        <div class="ad-header">
+          <h3 class="ad-title" (click)="onViewAd.emit(ad.id)">
+            {{ ad.title }}
+          </h3>
+
+          <!-- Menu azioni (solo per proprio profilo) -->
+          <div class="ad-actions-menu" *ngIf="isOwnProfile">
+            <button
+              class="menu-button"
+              (click)="toggleMenu(ad.id)"
+              [attr.aria-label]="'Opciones para ' + ad.title"
+            >
+              ⋮
+            </button>
+
+            <!-- Dropdown menu -->
+            <div class="actions-dropdown" *ngIf="activeMenuId === ad.id">
+              <button class="action-item" (click)="handleEdit(ad.id)">
+                <span class="action-icon">✏️</span>
+                <span>Editar</span>
+              </button>
+
+              <button
+                class="action-item"
+                *ngIf="ad.status === 'active'"
+                (click)="handlePause(ad.id)"
+              >
+                <span class="action-icon">⏸️</span>
+                <span>Pausar</span>
+              </button>
+
+              <button
+                class="action-item"
+                *ngIf="ad.status === 'paused'"
+                (click)="handleActivate(ad.id)"
+              >
+                <span class="action-icon">▶️</span>
+                <span>Activar</span>
+              </button>
+
+              <button class="action-item" (click)="handleMarkCompleted(ad.id)">
+                <span class="action-icon">✔️</span>
+                <span>Marcar como vendido</span>
+              </button>
+
+              <button class="action-item" (click)="handleShare(ad.id)">
+                <span class="action-icon">🔗</span>
+                <span>Compartir</span>
+              </button>
+
+              <div class="dropdown-divider"></div>
+
+              <button class="action-item danger" (click)="handleDelete(ad.id)">
+                <span class="action-icon">🗑️</span>
+                <span>Eliminar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prezzo -->
+        <div class="ad-price">
+          <span class="price-value" *ngIf="ad.price">
+            {{ ad.price }} {{ ad.currency }}
+          </span>
+          <span class="price-free" *ngIf="!ad.price">Gratis</span>
+          <span class="price-negotiable" *ngIf="ad.isNegotiable"
+            >· Negociable</span
+          >
+        </div>
+
+        <!-- Meta info -->
+        <div class="ad-meta">
+          <span class="meta-item">
+            <span class="meta-icon">📍</span>
+            {{ ad.location.city }}
+          </span>
+          <span class="meta-item">
+            <span class="meta-icon">📅</span>
+            {{ formatDate(ad.createdAt) }}
+          </span>
+        </div>
+
+        <!-- Statistiche (solo per proprio profilo) -->
+        <div class="ad-stats" *ngIf="isOwnProfile">
+          <div class="stat-item">
+            <span class="stat-label">Vistas</span>
+            <span class="stat-value">{{ ad.viewCount || 0 }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Contactos</span>
+            <span class="stat-value">{{ ad.contactCount || 0 }}</span>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>

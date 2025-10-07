@@ -1,0 +1,635 @@
+/* ==========================================
+   PROFILE HEADER COMPONENT - STILI SCSS
+   ========================================== */
+
+/* Variabili locali */
+$primary: #2196f3;
+$success: #4caf50;
+$danger: #f44336;
+$text-primary: #212121;
+$text-secondary: #757575;
+$border-color: #e0e0e0;
+
+/* ==========================================
+   CONTAINER PRINCIPALE
+   ========================================== */
+
+.profile-header {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+/* ==========================================
+   SKELETON LOADER
+   ========================================== */
+
+.skeleton-loader {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.skeleton-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.skeleton-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-line {
+  height: 16px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  animation: shimmer 1.5s ease-in-out infinite;
+
+  &.large {
+    width: 60%;
+    height: 24px;
+  }
+
+  &.medium {
+    width: 40%;
+  }
+
+  &.small {
+    width: 30%;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ==========================================
+   CONTENUTO HEADER
+   ========================================== */
+
+.header-content {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+/* ==========================================
+   SEZIONE INFO UTENTE
+   ========================================== */
+
+.user-info-section {
+  display: flex;
+  gap: 24px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Avatar */
+.avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.user-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid $border-color;
+  background: #f5f5f5;
+  transition: all 0.3s ease;
+
+  &.verified {
+    border-color: $primary;
+  }
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* Badge verificazione */
+.verification-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 32px;
+  height: 32px;
+  background: $primary;
+  border: 3px solid white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.badge-icon {
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Indicatore online */
+.online-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  background: $success;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(76, 175, 80, 0.1);
+  }
+}
+
+/* ==========================================
+   DETTAGLI UTENTE
+   ========================================== */
+
+.user-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* Nomi */
+.user-names {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.display-name {
+  font-size: 32px;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0;
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .verified-icon {
+    color: $primary;
+    font-size: 24px;
+  }
+}
+
+.username {
+  font-size: 18px;
+  color: $text-secondary;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Rating */
+.user-rating {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+}
+
+.star {
+  font-size: 20px;
+  transition: transform 0.2s ease;
+
+  &.filled {
+    color: #ffa000;
+  }
+
+  &.half {
+    color: #ffa000;
+    opacity: 0.5;
+  }
+
+  &:not(.filled):not(.half) {
+    color: #e0e0e0;
+  }
+}
+
+.rating-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.reviews-count {
+  font-weight: 400;
+  color: $text-secondary;
+}
+
+/* Biografia */
+.user-bio {
+  font-size: 16px;
+  line-height: 1.6;
+  color: $text-primary;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+/* Meta informazioni */
+.user-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: $text-secondary;
+}
+
+.meta-icon {
+  font-size: 16px;
+}
+
+.meta-text {
+  font-weight: 500;
+}
+
+/* Badge utente */
+.user-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: #e3f2fd;
+  color: $primary;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+
+  &.success {
+    background: #e8f5e9;
+    color: $success;
+    border-color: rgba(76, 175, 80, 0.3);
+  }
+}
+
+/* ==========================================
+   AZIONI HEADER
+   ========================================== */
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &.primary {
+    background: $primary;
+    color: white;
+
+    &:hover {
+      background: darken($primary, 10%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+    }
+  }
+
+  &.secondary {
+    background: white;
+    color: $text-primary;
+    border: 2px solid $border-color;
+    padding: 10px;
+    width: 44px;
+    justify-content: center;
+
+    &:hover {
+      border-color: $primary;
+      color: $primary;
+      background: #f5f5f5;
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+}
+
+.button-icon {
+  font-size: 18px;
+}
+
+/* ==========================================
+   DROPDOWN MENU
+   ========================================== */
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  min-width: 220px;
+  overflow: hidden;
+  z-index: 1000;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: $text-primary;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+
+  &.danger {
+    color: $danger;
+
+    &:hover {
+      background: #ffebee;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: -2px;
+  }
+}
+
+.item-icon {
+  font-size: 18px;
+  width: 20px;
+  text-align: center;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: $border-color;
+  margin: 4px 0;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .header-content {
+    gap: 24px;
+  }
+
+  .user-avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .display-name {
+    font-size: 28px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .profile-header {
+    padding: 24px 16px;
+    border-radius: 12px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .user-info-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .user-avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .display-name {
+    font-size: 24px;
+    justify-content: center;
+  }
+
+  .username {
+    font-size: 16px;
+  }
+
+  .user-rating {
+    justify-content: center;
+  }
+
+  .user-meta {
+    justify-content: center;
+  }
+
+  .user-badges {
+    justify-content: center;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .action-button {
+    flex: 1;
+    justify-content: center;
+
+    &.secondary {
+      flex: 0;
+    }
+  }
+
+  .button-text {
+    display: inline;
+  }
+}
+
+/* Mobile piccolo */
+@media (max-width: 480px) {
+  .profile-header {
+    padding: 20px 12px;
+  }
+
+  .user-avatar {
+    width: 80px;
+    height: 80px;
+  }
+
+  .display-name {
+    font-size: 20px;
+  }
+
+  .username {
+    font-size: 14px;
+  }
+
+  .user-bio {
+    font-size: 14px;
+  }
+
+  .meta-item {
+    font-size: 13px;
+  }
+
+  .action-button {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .button-text {
+    display: none;
+  }
+
+  .action-button.primary .button-text {
+    display: inline;
+  }
+}
+
+/* ==========================================
+   DARK MODE
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+  .profile-header {
+    background: #1e1e1e;
+  }
+
+  .display-name,
+  .user-bio,
+  .rating-text {
+    color: #e0e0e0;
+  }
+
+  .username,
+  .meta-text,
+  .reviews-count {
+    color: #9e9e9e;
+  }
+
+  .user-avatar {
+    border-color: #333;
+  }
+
+  .verification-badge,
+  .online-indicator {
+    border-color: #1e1e1e;
+  }
+
+  .action-button.secondary {
+    background: #2a2a2a;
+    border-color: #444;
+    color: #e0e0e0;
+
+    &:hover {
+      background: #333;
+    }
+  }
+
+  .dropdown-menu {
+    background: #2a2a2a;
+    border-color: #444;
+  }
+
+  .dropdown-item {
+    color: #e0e0e0;
+
+    &:hover {
+      background: #333;
+    }
+  }
+
+  .dropdown-divider {
+    background: #444;
+  }
+}

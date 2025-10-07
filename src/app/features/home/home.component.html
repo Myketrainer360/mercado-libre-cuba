@@ -1,0 +1,281 @@
+<div class="home-container">
+  <!-- ==========================================
+           SEZIONE HERO - BENVENUTO E RICERCA RAPIDA
+           ========================================== -->
+
+  <section class="hero-section">
+    <div class="welcome-message">
+      <h1 class="hero-title">¡Bienvenido al Mercado Libre de Cuba!</h1>
+      <p class="hero-subtitle">Compra, vende e intercambia con tu comunidad</p>
+    </div>
+
+    <!-- Barra di ricerca rapida in evidenza -->
+    <div class="quick-search">
+      <div class="search-container">
+        <input
+          type="text"
+          placeholder="¿Qué estás buscando hoy?"
+          class="search-input"
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="quickSearch()"
+        />
+        <button class="search-button" (click)="quickSearch()">🔍</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+           FILTRI RAPIDI PER CATEGORIA
+           ========================================== -->
+
+  <section class="quick-filters">
+    <h3 class="section-title">Categorías Populares</h3>
+
+    <div class="filters-container">
+      <button
+        class="filter-chip"
+        [class.active]="selectedCategory === 'all'"
+        (click)="filterByCategory('all')"
+      >
+        🏷️ Todo
+      </button>
+
+      <button
+        class="filter-chip"
+        [class.active]="selectedCategory === AdCategory.SERVICES"
+        (click)="filterByCategory(AdCategory.SERVICES)"
+      >
+        🔧 Servicios
+      </button>
+
+      <button
+        class="filter-chip"
+        [class.active]="selectedCategory === AdCategory.ELECTRONICS"
+        (click)="filterByCategory(AdCategory.ELECTRONICS)"
+      >
+        📱 Electrónicos
+      </button>
+
+      <button
+        class="filter-chip"
+        [class.active]="selectedCategory === AdCategory.HOUSEHOLD"
+        (click)="filterByCategory(AdCategory.HOUSEHOLD)"
+      >
+        🏠 Hogar
+      </button>
+
+      <button
+        class="filter-chip"
+        [class.active]="selectedCategory === AdCategory.TRANSPORT"
+        (click)="filterByCategory(AdCategory.TRANSPORT)"
+      >
+        🚗 Transporte
+      </button>
+
+      <button
+        class="filter-chip"
+        [class.active]="selectedCategory === AdCategory.FOOD"
+        (click)="filterByCategory(AdCategory.FOOD)"
+      >
+        🍽️ Alimentos
+      </button>
+    </div>
+  </section>
+
+  <!-- ==========================================
+           STATISTICHE DELLA COMMUNITY
+           ========================================== -->
+
+  <section class="community-stats">
+    <div class="stats-container">
+      <div class="stat-item">
+        <span class="stat-number">{{ totalAds }}</span>
+        <span class="stat-label">Anuncios Activos</span>
+      </div>
+
+      <div class="stat-item">
+        <span class="stat-number">{{ activeUsers }}</span>
+        <span class="stat-label">Usuarios Conectados</span>
+      </div>
+
+      <div class="stat-item">
+        <span class="stat-number">{{ todayDeals }}</span>
+        <span class="stat-label">Intercambios Hoy</span>
+      </div>
+    </div>
+  </section>
+  <!-- ==========================================
+           FEED PRINCIPALE DEGLI ANNUNCI
+           ========================================== -->
+
+  <section class="ads-feed">
+    <!-- Header della sezione con opzioni di ordinamento -->
+    <div class="feed-header">
+      <h3 class="section-title">
+        {{ getFilterTitle() }}
+        <span class="results-count">({{ filteredAds.length }} resultados)</span>
+      </h3>
+
+      <div class="sort-options">
+        <select
+          class="sort-select"
+          [(ngModel)]="sortBy"
+          (change)="sortAds()"
+          aria-label="Ordenar anuncios por"
+        >
+          <option value="newest">Más Recientes</option>
+          <option value="oldest">Más Antiguos</option>
+          <option value="price-low">Precio: Menor a Mayor</option>
+          <option value="price-high">Precio: Mayor a Menor</option>
+          <option value="popular">Más Populares</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Indicatore di caricamento -->
+    <div class="loading-spinner" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Cargando anuncios...</p>
+    </div>
+
+    <!-- Griglia degli annunci -->
+    <div class="ads-grid" *ngIf="!isLoading && filteredAds.length > 0">
+      <!-- Ogni annuncio è una card cliccabile -->
+      <article
+        class="ad-card"
+        *ngFor="let ad of paginatedAds; trackBy: trackByAdId"
+        (click)="openAdDetails(ad)"
+        [attr.aria-label]="'Anuncio: ' + ad.title"
+      >
+        <!-- Immagine principale dell'annuncio -->
+        <div class="ad-image-container">
+          <img
+            alt="image"
+            [src]="ad.images[0] || '/assets/images/no-image.png'"
+            [alt]="ad.title"
+            class="ad-image"
+            loading="lazy"
+          />
+
+          <!-- Badge per indicare se è offerta o richiesta -->
+          <span class="ad-type-badge" [class]="ad.type">
+            {{ ad.type === "offer" ? "💰 OFREZCO" : "🔍 BUSCO" }}
+          </span>
+
+          <!-- Indicatore di favori se l'annuncio è nei preferiti -->
+          <button
+            class="favorite-button"
+            (click)="toggleFavorite(ad, $event)"
+            [class.active]="isFavorite(ad.id)"
+          >
+            ❤️
+          </button>
+        </div>
+
+        <!-- Contenuto testuale della card -->
+        <div class="ad-content">
+          <!-- Titolo dell'annuncio -->
+          <h4 class="ad-title">{{ ad.title }}</h4>
+
+          <!-- Breve descrizione -->
+          <p class="ad-description">
+            {{ truncateText(ad.description, 80) }}
+          </p>
+
+          <!-- Informazioni sul prezzo e valuta -->
+          <div class="ad-price" *ngIf="ad.price">
+            <span class="price-amount">{{ formatPrice(ad.price) }}</span>
+            <span class="price-currency">{{ ad.currency }}</span>
+          </div>
+
+          <div class="ad-price free" *ngIf="!ad.price">
+            <span class="price-amount">Gratis</span>
+          </div>
+
+          <!-- Informazioni sulla località e data -->
+          <div class="ad-metadata">
+            <div class="ad-location">
+              <span class="location-icon">📍</span>
+              {{ ad.location.city }}, {{ ad.location.province }}
+            </div>
+
+            <div class="ad-date">
+              {{ formatTimeAgo(ad.createdAt) }}
+            </div>
+          </div>
+
+          <!-- Tags/categorie dell'annuncio -->
+          <div class="ad-tags" *ngIf="ad.tags.length > 0">
+            <span class="tag" *ngFor="let tag of ad.tags.slice(0, 3)">
+              #{{ tag }}
+            </span>
+            <span class="more-tags" *ngIf="ad.tags.length > 3">
+              +{{ ad.tags.length - 3 }}
+            </span>
+          </div>
+
+          <!-- Statistiche di interazione -->
+          <div class="ad-stats">
+            <span class="stat">
+              <span class="stat-icon">👁️</span>
+              {{ ad.viewCount }}
+            </span>
+            <span class="stat">
+              <span class="stat-icon">💬</span>
+              {{ ad.contactCount }}
+            </span>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Messaggio quando non ci sono risultati -->
+    <div class="no-results" *ngIf="!isLoading && filteredAds.length === 0">
+      <div class="no-results-icon">🔍</div>
+      <h3>No se encontraron resultados</h3>
+      <p>
+        Intenta cambiar los filtros o
+        <a routerLink="/create-ad" class="create-link"
+          >publica tu propio anuncio</a
+        >
+      </p>
+    </div>
+
+    <!-- Paginazione per non caricare troppi annunci insieme -->
+    <div class="pagination" *ngIf="filteredAds.length > adsPerPage">
+      <button
+        class="pagination-button"
+        [disabled]="currentPage === 1"
+        (click)="previousPage()"
+      >
+        ← Anterior
+      </button>
+
+      <span class="pagination-info">
+        Página {{ currentPage }} de {{ totalPages }}
+      </span>
+
+      <button
+        class="pagination-button"
+        [disabled]="currentPage === totalPages"
+        (click)="nextPage()"
+      >
+        Siguiente →
+      </button>
+    </div>
+  </section>
+
+  <!-- ==========================================
+           CALL-TO-ACTION PER INVOGLIARE A PUBBLICARE
+           ========================================== -->
+
+  <section class="cta-section">
+    <div class="cta-content">
+      <h3>¿Tienes algo que ofrecer?</h3>
+      <p>Únete a nuestra comunidad y comienza a intercambiar hoy mismo</p>
+      <a routerLink="/create-ad" class="cta-button">
+        Crear Mi Primer Anuncio
+      </a>
+    </div>
+  </section>
+</div>

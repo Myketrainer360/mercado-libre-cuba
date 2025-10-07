@@ -1,0 +1,171 @@
+<!-- ==========================================
+     CHAT VIEW COMPONENT - TEMPLATE HTML
+     ========================================== -->
+
+<div class="chat-view">
+  <!-- Container scrollabile messaggi -->
+  <div #scrollContainer class="messages-container" (scroll)="onScroll($event)">
+    <!-- Pulsante "Carica messaggi più vecchi" -->
+    <div class="load-more-container" *ngIf="canLoadMore && messages.length > 0">
+      <button
+        class="load-more-button"
+        (click)="loadMoreMessages()"
+        [disabled]="isLoadingMore"
+      >
+        <span *ngIf="!isLoadingMore">↑ Cargar mensajes antiguos</span>
+        <span *ngIf="isLoadingMore" class="loading-text">
+          <span class="spinner-small"></span>
+          Cargando...
+        </span>
+      </button>
+    </div>
+
+    <!-- Loading skeleton per caricamento iniziale -->
+    <div class="messages-loading" *ngIf="isLoading && messages.length === 0">
+      <div class="skeleton-message left" *ngFor="let item of [1, 2, 3]">
+        <div class="skeleton-avatar"></div>
+        <div class="skeleton-bubble"></div>
+      </div>
+      <div class="skeleton-message right" *ngFor="let item of [1, 2]">
+        <div class="skeleton-bubble"></div>
+      </div>
+    </div>
+
+    <!-- Empty state quando non ci sono messaggi -->
+    <div class="empty-chat" *ngIf="!isLoading && messages.length === 0">
+      <div class="empty-icon">💬</div>
+      <h3>No hay mensajes</h3>
+      <p>Inicia la conversación enviando un mensaje</p>
+    </div>
+
+    <!-- Lista messaggi -->
+    <div class="messages-list" *ngIf="messages.length > 0">
+      <ng-container
+        *ngFor="
+          let message of messages;
+          let i = index;
+          trackBy: trackByMessageId
+        "
+      >
+        <!-- Separatore data -->
+        <div class="date-separator" *ngIf="shouldShowDateSeparator(i)">
+          <span class="date-text">{{
+            formatDateSeparator(message.timestamp)
+          }}</span>
+        </div>
+
+        <!-- Messaggio -->
+        <div
+          class="message-wrapper"
+          [class.message-left]="!isMyMessage(message)"
+          [class.message-right]="isMyMessage(message)"
+          [class.first-in-group]="isFirstInGroup(i)"
+          [class.last-in-group]="isLastInGroup(i)"
+        >
+          <!-- Avatar (solo per messaggi dell'altro utente e primo del gruppo) -->
+          <div
+            class="message-avatar"
+            *ngIf="!isMyMessage(message) && isLastInGroup(i)"
+          >
+            <img
+              alt="Avatar"
+              src="/assets/images/default-avatar.png"
+              [alt]="otherUserName"
+              class="avatar-img"
+            />
+          </div>
+          <div
+            class="message-avatar-spacer"
+            *ngIf="!isMyMessage(message) && !isLastInGroup(i)"
+          ></div>
+
+          <!-- Bubble del messaggio -->
+          <div
+            class="message-bubble"
+            [attr.title]="formatFullDateTime(message.timestamp)"
+          >
+            <!-- Contenuto messaggio -->
+            <div class="message-content">
+              <!-- Se è un messaggio di testo -->
+              <p class="message-text" *ngIf="message.messageType === 'text'">
+                {{ message.content }}
+              </p>
+
+              <!-- Se è un'immagine -->
+              <div
+                class="message-image"
+                *ngIf="message.messageType === 'image'"
+              >
+                <img [src]="message.content" alt="Imagen" />
+              </div>
+
+              <!-- Se è una posizione -->
+              <div
+                class="message-location"
+                *ngIf="message.messageType === 'location'"
+              >
+                <div class="location-icon">📍</div>
+                <span class="location-text">{{ message.content }}</span>
+              </div>
+
+              <!-- Se ha allegati -->
+              <div
+                class="message-attachments"
+                *ngIf="message.attachments && message.attachments.length > 0"
+              >
+                <div
+                  class="attachment-item"
+                  *ngFor="let attachment of message.attachments"
+                >
+                  <span class="attachment-icon">📎</span>
+                  <span class="attachment-name">{{ attachment.filename }}</span>
+                </div>
+              </div>
+
+              <!-- Indicatore messaggio modificato -->
+              <span class="edited-indicator" *ngIf="message.isEdited">
+                (editado)
+              </span>
+            </div>
+
+            <!-- Footer messaggio con ora e stato -->
+            <div class="message-footer">
+              <span class="message-time">{{
+                formatTime(message.timestamp)
+              }}</span>
+
+              <!-- Stato messaggio (solo per i miei messaggi) -->
+              <span
+                class="message-status"
+                *ngIf="isMyMessage(message)"
+                [class]="getMessageStatusClass(message.status)"
+              >
+                {{ getMessageStatusIcon(message.status) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Indicatore "Sta scrivendo..." -->
+      <div class="typing-indicator-wrapper" *ngIf="isTyping">
+        <div class="message-avatar">
+          <img
+            alt="Avatar"
+            src="/assets/images/default-avatar.png"
+            [alt]="otherUserName"
+            class="avatar-img"
+          />
+        </div>
+
+        <div class="typing-bubble">
+          <div class="typing-dots">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,629 @@
+<div class="search-container">
+  <!-- ==========================================
+           HEADER CON BARRA DI RICERCA PRINCIPALE
+           ========================================== -->
+
+  <header class="search-header">
+    <div class="search-hero">
+      <h1 class="search-title">🔍 Busca lo que necesitas</h1>
+      <p class="search-subtitle">
+        Encuentra exactamente lo que buscas en tu comunidad
+      </p>
+
+      <!-- Barra di ricerca principale -->
+      <div class="main-search">
+        <div class="search-bar">
+          <input
+            #searchInput
+            type="text"
+            class="search-input"
+            [(ngModel)]="searchQuery"
+            placeholder="¿Qué estás buscando? (ej. iPhone, clases de inglés, bicicleta...)"
+            (keyup.enter)="performSearch()"
+            (input)="onSearchInputChange()"
+          />
+
+          <button
+            class="search-button"
+            (click)="performSearch()"
+            [disabled]="isSearching"
+          >
+            <span *ngIf="!isSearching">🔍</span>
+            <span *ngIf="isSearching" class="loading-spinner-small"></span>
+          </button>
+        </div>
+
+        <!-- Suggerimenti di ricerca mentre digita -->
+        <div
+          class="search-suggestions"
+          *ngIf="searchSuggestions.length > 0 && showSuggestions"
+        >
+          <div
+            class="suggestion-item"
+            *ngFor="let suggestion of searchSuggestions"
+            (click)="selectSuggestion(suggestion)"
+          >
+            <span class="suggestion-icon">🔍</span>
+            <span class="suggestion-text">{{ suggestion }}</span>
+            <span class="suggestion-type">{{
+              getSuggestionType(suggestion)
+            }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ricerche popolari -->
+      <div class="popular-searches">
+        <span class="popular-label">Búsquedas populares:</span>
+        <button
+          class="popular-tag"
+          *ngFor="let search of popularSearches"
+          (click)="quickSearch(search)"
+        >
+          {{ search }}
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================
+           FILTRI AVANZATI
+           ========================================== -->
+
+  <section class="filters-section">
+    <!-- Toggle per mostrare/nascondere filtri -->
+    <div class="filters-header">
+      <button
+        class="filters-toggle"
+        (click)="toggleFilters()"
+        [class.active]="showFilters"
+      >
+        <span class="toggle-icon">⚙️</span>
+        <span>{{ showFilters ? "Ocultar Filtros" : "Mostrar Filtros" }}</span>
+        <span class="toggle-arrow" [class.rotated]="showFilters">▼</span>
+      </button>
+
+      <!-- Contador de filtri attivi -->
+      <span class="active-filters-count" *ngIf="getActiveFiltersCount() > 0">
+        {{ getActiveFiltersCount() }} filtro{{
+          getActiveFiltersCount() > 1 ? "s" : ""
+        }}
+        activo{{ getActiveFiltersCount() > 1 ? "s" : "" }}
+      </span>
+
+      <!-- Pulsante per pulire tutti i filtri -->
+      <button
+        class="clear-filters-btn"
+        *ngIf="getActiveFiltersCount() > 0"
+        (click)="clearAllFilters()"
+      >
+        Limpiar Todo
+      </button>
+    </div>
+
+    <!-- Panel dei filtri -->
+    <form
+      [formGroup]="filtersForm"
+      class="filters-panel"
+      [class.show]="showFilters"
+    >
+      <!-- Prima riga: Tipo e Categoria -->
+      <div class="filters-row">
+        <div class="filter-group">
+          <label class="filter-label">Tipo de anuncio</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input
+                class="radio-custom"
+                type="radio"
+                formControlName="type"
+                value=""
+              />
+              <span class="radio-text">Todos</span>
+            </label>
+            <label class="radio-option">
+              <input
+                class="radio-custom"
+                type="radio"
+                formControlName="type"
+                value="offer"
+              />
+              <span class="radio-text">💰 Ofertas</span>
+            </label>
+            <label class="radio-option">
+              <input
+                class="radio-custom"
+                type="radio"
+                formControlName="type"
+                value="request"
+              />
+              <span class="radio-text">🔍 Búsquedas</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="category">Categoría</label>
+          <select
+            id="category"
+            class="filter-select"
+            formControlName="category"
+          >
+            <option value="">Todas las categorías</option>
+            <option *ngFor="let cat of categories" [value]="cat.value">
+              {{ cat.icon }} {{ cat.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Segunda riga: Località -->
+      <div class="filters-row">
+        <div class="filter-group">
+          <label class="filter-label" for="province">Provincia</label>
+          <select
+            id="province"
+            class="filter-select"
+            formControlName="province"
+            (change)="onProvinceChange()"
+          >
+            <option value="">Toda Cuba</option>
+            <option *ngFor="let province of provinces" [value]="province">
+              {{ province }}
+            </option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Ciudad/Municipio</label>
+          <input
+            type="text"
+            class="filter-input"
+            formControlName="city"
+            placeholder="Especifica la ciudad..."
+            [disabled]="!filtersForm.get('province')?.value"
+          />
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Distancia máxima</label>
+          <div class="distance-slider">
+            <input
+              type="range"
+              class="slider"
+              formControlName="maxDistance"
+              min="1"
+              max="100"
+              step="5"
+              title="Distancia máxima"
+            />
+            <span class="slider-value">
+              {{ filtersForm.get("maxDistance")?.value || 50 }} km
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Terza riga: Prezzo -->
+      <div class="filters-row">
+        <div class="filter-group">
+          <label class="filter-label">Tipo de precio</label>
+          <div class="price-type-options">
+            <label
+              class="price-type-option"
+              *ngFor="let priceType of priceTypes"
+              [class.selected]="
+                filtersForm.get('priceType')?.value === priceType.value
+              "
+            >
+              <input
+                type="radio"
+                formControlName="priceType"
+                [value]="priceType.value"
+                [title]="priceType.label"
+                title="{{ priceType.label }}"
+              />
+              <span class="price-type-icon">{{ priceType.icon }}</span>
+              <span class="price-type-label">{{ priceType.label }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rango de precios (solo se è selezionato "paid") -->
+      <div
+        class="filters-row"
+        *ngIf="filtersForm.get('priceType')?.value === 'paid'"
+      >
+        <div class="filter-group">
+          <label class="filter-label" for="currency">Moneda</label>
+          <select
+            id="currency"
+            class="filter-select"
+            formControlName="currency"
+          >
+            <option value="">Cualquier moneda</option>
+            <option value="CUP">🇨🇺 Peso Cubano (CUP)</option>
+            <option value="USD">🇺🇸 Dólar (USD)</option>
+            <option value="EUR">🇪🇺 Euro (EUR)</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Precio mínimo</label>
+          <input
+            type="number"
+            class="filter-input"
+            formControlName="minPrice"
+            placeholder="0"
+            min="0"
+            step="0.01"
+          />
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Precio máximo</label>
+          <input
+            type="number"
+            class="filter-input"
+            formControlName="maxPrice"
+            placeholder="Sin límite"
+            min="0"
+            step="0.01"
+          />
+        </div>
+      </div>
+
+      <!-- Cuarta riga: Opzioni avanzate -->
+      <div class="filters-row">
+        <div class="filter-group checkboxes-group">
+          <label class="filter-label">Opciones adicionales</label>
+          <div class="checkbox-options">
+            <label class="checkbox-option">
+              <input
+                class="checkbox-custom"
+                type="checkbox"
+                formControlName="hasImages"
+              />
+              <span class="checkbox-text">📸 Solo con fotos</span>
+            </label>
+
+            <label class="checkbox-option">
+              <input
+                class="checkbox-custom"
+                type="checkbox"
+                formControlName="isNegotiable"
+              />
+              <span class="checkbox-text">💬 Precio negociable</span>
+            </label>
+
+            <label class="checkbox-option">
+              <span>
+                <input
+                  class="checkbox-custom"
+                  type="checkbox"
+                  formControlName="isUrgent"
+                />
+              </span>
+              <span class="checkbox-text">⚡ Urgente</span>
+            </label>
+
+            <label class="checkbox-option">
+              <input
+                class="checkbox-custom"
+                type="checkbox"
+                formControlName="verifiedUsers"
+              />
+              <span class="checkbox-text">✅ Usuarios verificados</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quinta riga: Data -->
+      <div class="filters-row">
+        <div class="filter-group">
+          <label class="filter-label">Publicado en los últimos</label>
+          <div class="date-options">
+            <label
+              class="date-option"
+              *ngFor="let dateOption of dateOptions"
+              [class.selected]="selectedDateRange === dateOption.value"
+            >
+              <input
+                type="radio"
+                name="dateRange"
+                [value]="dateOption.value"
+                [(ngModel)]="selectedDateRange"
+                [ngModelOptions]="{ standalone: true }"
+              />
+              <span class="date-option-text">{{ dateOption.label }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pulsanti di azione per i filtri -->
+      <div class="filters-actions">
+        <button
+          type="button"
+          class="apply-filters-btn"
+          (click)="applyFilters()"
+          [disabled]="isSearching"
+        >
+          <span *ngIf="!isSearching">Aplicar Filtros</span>
+          <span *ngIf="isSearching">Buscando...</span>
+        </button>
+
+        <button
+          type="button"
+          class="reset-filters-btn"
+          (click)="resetFilters()"
+        >
+          Resetear
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ==========================================
+           FILTRI ATTIVI (TAGS)
+           ========================================== -->
+
+  <section class="active-filters" *ngIf="activeFilterTags.length > 0">
+    <div class="active-filters-container">
+      <span class="active-filters-label">Filtros aplicados:</span>
+      <div class="filter-tags">
+        <span class="filter-tag" *ngFor="let tag of activeFilterTags">
+          {{ tag.label }}
+          <button
+            class="remove-filter"
+            (click)="removeFilter(tag.key)"
+            [attr.aria-label]="'Remover filtro ' + tag.label"
+          >
+            ×
+          </button>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+           RISULTATI DELLA RICERCA
+           ========================================== -->
+
+  <section class="results-section">
+    <!-- Header dei risultati con ordinamento -->
+    <div class="results-header" *ngIf="searchResults.length > 0 || isSearching">
+      <div class="results-info">
+        <h2 class="results-title">
+          {{ getResultsTitle() }}
+        </h2>
+        <span class="results-count" *ngIf="!isSearching">
+          {{ totalResults }} resultado{{ totalResults !== 1 ? "s" : "" }}
+          <span *ngIf="searchTime > 0">({{ searchTime }}ms)</span>
+        </span>
+      </div>
+
+      <div class="sort-controls" *ngIf="searchResults.length > 0">
+        <label for="sortBy" class="sort-label">Ordenar por:</label>
+        <select
+          id="sortBy"
+          class="sort-select"
+          [(ngModel)]="currentSort"
+          (change)="onSortChange()"
+        >
+          <option *ngFor="let option of sortOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div class="loading-state" *ngIf="isSearching">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Buscando en toda Cuba...</p>
+      <div class="loading-details">
+        <span class="loading-step">{{ loadingStep }}</span>
+      </div>
+    </div>
+
+    <!-- Risultati in griglia -->
+    <div class="results-grid" *ngIf="!isSearching && searchResults.length > 0">
+      <article
+        class="result-card"
+        *ngFor="let ad of paginatedResults"
+        (click)="openAdDetails(ad)"
+        [attr.aria-label]="'Anuncio: ' + ad.title"
+      >
+        <!-- Immagine del risultato -->
+        <div class="result-image-container">
+          <img
+            alt="{{ ad.title }}"
+            [src]="ad.images[0] || '/assets/images/no-image.png'"
+            [alt]="ad.title"
+            class="result-image"
+            loading="lazy"
+          />
+
+          <!-- Badge per tipo di annuncio -->
+          <span class="result-type-badge" [class]="ad.type">
+            {{ ad.type === "offer" ? "OFERTA" : "BUSCO" }}
+          </span>
+
+          <!-- Badge per annunci urgenti -->
+          <span class="urgent-badge" *ngIf="ad.isUrgent">⚡ URGENTE</span>
+
+          <!-- Pulsante favoriti -->
+          <button
+            class="favorite-button"
+            (click)="toggleFavorite(ad, $event)"
+            [class.active]="isFavorite(ad.id)"
+            [attr.aria-label]="'Agregar a favoritos'"
+          >
+            ❤️
+          </button>
+        </div>
+
+        <!-- Contenuto testuale -->
+        <div class="result-content">
+          <h3 class="result-title">{{ ad.title }}</h3>
+
+          <p class="result-description">
+            {{ truncateText(ad.description, 100) }}
+          </p>
+
+          <!-- Prezzo -->
+          <div class="result-price">
+            <span class="price-amount" *ngIf="ad.price">
+              {{ formatPrice(ad.price) }} {{ ad.currency }}
+            </span>
+            <span class="price-amount free" *ngIf="!ad.price"> Gratis </span>
+            <span class="negotiable-tag" *ngIf="ad.isNegotiable"
+              >Negociable</span
+            >
+          </div>
+
+          <!-- Località e data -->
+          <div class="result-metadata">
+            <span class="result-location">
+              📍 {{ ad.location.city }}, {{ ad.location.province }}
+            </span>
+            <span class="result-date">
+              {{ formatTimeAgo(ad.createdAt) }}
+            </span>
+          </div>
+
+          <!-- Statistiche -->
+          <div class="result-stats">
+            <span class="stat">
+              <span class="stat-icon">👁️</span>
+              {{ ad.viewCount }}
+            </span>
+            <span class="stat">
+              <span class="stat-icon">💬</span>
+              {{ ad.contactCount }}
+            </span>
+            <span class="stat verified" *ngIf="isUserVerified(ad.userId)">
+              <span class="stat-icon">✅</span>
+              Verificado
+            </span>
+          </div>
+
+          <!-- Tags del risultato -->
+          <div class="result-tags" *ngIf="ad.tags.length > 0">
+            <span class="result-tag" *ngFor="let tag of ad.tags.slice(0, 3)">
+              #{{ tag }}
+            </span>
+            <span class="more-tags" *ngIf="ad.tags.length > 3">
+              +{{ ad.tags.length - 3 }}
+            </span>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Stato vuoto -->
+    <div
+      class="empty-state"
+      *ngIf="!isSearching && searchResults.length === 0 && hasSearched"
+    >
+      <div class="empty-icon">🔍</div>
+      <h3 class="empty-title">No se encontraron resultados</h3>
+      <p class="empty-message">
+        Intenta con diferentes palabras clave o ajusta los filtros de búsqueda
+      </p>
+
+      <div class="empty-suggestions">
+        <h4>Algunas sugerencias:</h4>
+        <ul>
+          <li>Verifica que las palabras estén escritas correctamente</li>
+          <li>Usa palabras más generales</li>
+          <li>Reduce la cantidad de filtros</li>
+          <li>Amplía el área de búsqueda</li>
+        </ul>
+      </div>
+
+      <div class="empty-actions">
+        <button class="clear-search-btn" (click)="clearSearch()">
+          Limpiar Búsqueda
+        </button>
+        <a routerLink="/create-ad" class="create-ad-btn">
+          Publicar lo que Buscas
+        </a>
+      </div>
+    </div>
+
+    <!-- Stato iniziale (prima della prima ricerca) -->
+    <div class="initial-state" *ngIf="!hasSearched && !isSearching">
+      <div class="initial-content">
+        <div class="initial-icon">🏪</div>
+        <h3 class="initial-title">Descubre el mercado cubano</h3>
+        <p class="initial-message">
+          Usa la barra de búsqueda o los filtros para encontrar exactamente lo
+          que necesitas
+        </p>
+
+        <!-- Categorie popolari -->
+        <div class="popular-categories">
+          <h4>Categorías más populares:</h4>
+          <div class="category-grid">
+            <button
+              class="category-quick-btn"
+              *ngFor="let category of popularCategories"
+              (click)="quickCategorySearch(category)"
+            >
+              <span class="category-icon">{{ category.icon }}</span>
+              <span class="category-name">{{ category.label }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+             PAGINAZIONE
+             ========================================== -->
+
+    <div
+      class="pagination-section"
+      *ngIf="searchResults.length > resultsPerPage"
+    >
+      <div class="pagination-info">
+        Mostrando {{ getDisplayedResultsRange() }} de
+        {{ totalResults }} resultados
+      </div>
+
+      <div class="pagination-controls">
+        <button
+          class="pagination-btn prev"
+          [disabled]="currentPage === 1"
+          (click)="previousPage()"
+        >
+          ← Anterior
+        </button>
+
+        <div class="page-numbers">
+          <button
+            class="page-number"
+            *ngFor="let page of getVisiblePages()"
+            [class.active]="page === currentPage"
+            [disabled]="page === '...'"
+            (click)="goToPage(page)"
+          >
+            {{ page }}
+          </button>
+        </div>
+
+        <button
+          class="pagination-btn next"
+          [disabled]="currentPage === totalPages"
+          (click)="nextPage()"
+        >
+          Siguiente →
+        </button>
+      </div>
+    </div>
+  </section>
+</div>

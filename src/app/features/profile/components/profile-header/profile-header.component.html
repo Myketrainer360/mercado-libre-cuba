@@ -1,0 +1,226 @@
+<header class="profile-header" role="banner">
+  <!-- LOADING SKELETON -->
+  <div
+    class="skeleton-loader"
+    *ngIf="isLoading"
+    aria-busy="true"
+    aria-label="Cargando perfil"
+  >
+    <div class="skeleton-avatar"></div>
+    <div class="skeleton-content">
+      <div class="skeleton-line large"></div>
+      <div class="skeleton-line medium"></div>
+      <div class="skeleton-line small"></div>
+    </div>
+  </div>
+
+  <!-- CONTENUTO REALE -->
+  <div class="header-content" *ngIf="!isLoading && user">
+    <!-- AVATAR E INFO BASE -->
+    <div class="user-info-section">
+      <!-- Avatar con badge -->
+      <div class="avatar-wrapper">
+        <img
+          title="Foto de perfil de {{ user.displayName }}"
+          [src]="user.avatar || '/assets/images/default-avatar.png'"
+          [alt]="user.displayName + ' - Foto de perfil'"
+          class="user-avatar"
+          [class.verified]="user.isVerified"
+          loading="lazy"
+        />
+
+        <!-- Badge verificazione -->
+        <div
+          class="verification-badge"
+          *ngIf="user.isVerified"
+          [attr.title]="'Usuario verificado'"
+          role="img"
+          aria-label="Usuario verificado"
+        >
+          <span class="badge-icon">✓</span>
+        </div>
+
+        <!-- Indicatore online -->
+        <div
+          class="online-indicator"
+          *ngIf="!isOwnProfile && user.isOnline"
+          [attr.title]="'En línea'"
+          role="status"
+          aria-label="Usuario en línea"
+        ></div>
+      </div>
+
+      <!-- Dettagli utente -->
+      <div class="user-details">
+        <!-- Nome e username -->
+        <div class="user-names">
+          <h1 class="display-name">
+            {{ user.displayName }}
+            <span
+              class="verified-icon"
+              *ngIf="user.isVerified"
+              aria-hidden="true"
+              >✓</span
+            >
+          </h1>
+          <p class="username">{{ user.username }}</p>
+        </div>
+
+        <!-- Rating -->
+        <div
+          class="user-rating"
+          *ngIf="user.rating && user.rating.totalReviews > 0"
+        >
+          <div class="stars" [attr.aria-label]="getRatingAriaLabel()">
+            <span
+              *ngFor="let star of getStarsArray()"
+              class="star"
+              [class.filled]="star.filled"
+              [class.half]="star.half"
+              aria-hidden="true"
+            >
+              {{ star.filled ? "⭐" : star.half ? "⭐" : "☆" }}
+            </span>
+          </div>
+          <span class="rating-text">
+            {{ user.rating.averageRating.toFixed(1) }}
+            <span class="reviews-count"
+              >({{ user.rating.totalReviews }} reseña{{
+                user.rating.totalReviews !== 1 ? "s" : ""
+              }})</span
+            >
+          </span>
+        </div>
+
+        <!-- Biografia -->
+        <p class="user-bio" *ngIf="user.bio">{{ user.bio }}</p>
+
+        <!-- Info aggiuntive -->
+        <div class="user-meta">
+          <!-- Ubicazione -->
+          <div class="meta-item" *ngIf="user.location">
+            <span class="meta-icon" aria-hidden="true">📍</span>
+            <span class="meta-text"
+              >{{ user.location.city }}, {{ user.location.province }}</span
+            >
+          </div>
+
+          <!-- Data iscrizione -->
+          <div class="meta-item" *ngIf="user.joinDate">
+            <span class="meta-icon" aria-hidden="true">📅</span>
+            <span class="meta-text"
+              >Miembro desde {{ formatJoinDate(user.joinDate) }}</span
+            >
+          </div>
+
+          <!-- Tempo di risposta -->
+          <div class="meta-item" *ngIf="user.responseTime">
+            <span class="meta-icon" aria-hidden="true">⚡</span>
+            <span class="meta-text">Responde en {{ user.responseTime }}</span>
+          </div>
+
+          <!-- Lingue -->
+          <div
+            class="meta-item"
+            *ngIf="user.languages && user.languages.length > 0"
+          >
+            <span class="meta-icon" aria-hidden="true">🌐</span>
+            <span class="meta-text">{{ getLanguagesText() }}</span>
+          </div>
+        </div>
+
+        <!-- Badge e achievements -->
+        <div class="user-badges" *ngIf="hasAnyBadges()">
+          <span
+            class="badge"
+            *ngIf="user.isVerified"
+            title="Usuario verificado"
+          >
+            ✓ Verificado
+          </span>
+          <span
+            class="badge success"
+            *ngIf="user.successRate && user.successRate >= 90"
+            title="Alta tasa de éxito"
+          >
+            ⭐ Top Vendedor
+          </span>
+          <span
+            class="badge"
+            *ngIf="user.totalTransactions && user.totalTransactions >= 50"
+            title="Más de 50 transacciones"
+          >
+            🏆 Experimentado
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AZIONI HEADER -->
+    <div class="header-actions">
+      <!-- Azioni per proprio profilo -->
+      <ng-container *ngIf="isOwnProfile">
+        <button
+          class="action-button primary"
+          (click)="onEditProfile.emit()"
+          [attr.aria-label]="'Editar perfil'"
+        >
+          <span class="button-icon" aria-hidden="true">✏️</span>
+          <span class="button-text">Editar Perfil</span>
+        </button>
+      </ng-container>
+
+      <!-- Azioni per profilo altrui -->
+      <ng-container *ngIf="!isOwnProfile">
+        <button
+          class="action-button primary"
+          (click)="onContactUser.emit()"
+          [attr.aria-label]="'Contactar a ' + user.displayName"
+        >
+          <span class="button-icon" aria-hidden="true">💬</span>
+          <span class="button-text">Contactar</span>
+        </button>
+
+        <button
+          title="Más opciones"
+          class="action-button secondary"
+          (click)="toggleDropdown()"
+          [attr.aria-label]="'Más opciones'"
+          [attr.aria-expanded]="showDropdown"
+          [attr.aria-haspopup]="true"
+        >
+          <span class="button-icon" aria-hidden="true">⋮</span>
+        </button>
+
+        <!-- Dropdown menu -->
+        <div
+          class="dropdown-menu"
+          *ngIf="showDropdown"
+          role="menu"
+          (clickOutside)="closeDropdown()"
+        >
+          <button class="dropdown-item" role="menuitem" (click)="handleShare()">
+            <span class="item-icon" aria-hidden="true">🔗</span>
+            <span class="item-text">Compartir perfil</span>
+          </button>
+
+          <button class="dropdown-item" role="menuitem" (click)="handleBlock()">
+            <span class="item-icon" aria-hidden="true">🚫</span>
+            <span class="item-text">Bloquear usuario</span>
+          </button>
+
+          <div class="dropdown-divider" role="separator"></div>
+
+          <button
+            class="dropdown-item danger"
+            role="menuitem"
+            (click)="onReportUser.emit(); closeDropdown()"
+          >
+            <span class="item-icon" aria-hidden="true">⚠️</span>
+            <span class="item-text">Reportar usuario</span>
+          </button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</header>

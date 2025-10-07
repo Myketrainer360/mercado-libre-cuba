@@ -1,0 +1,226 @@
+<!-- ==========================================
+     PROFILE COMPONENT - TEMPLATE HTML
+     ========================================== -->
+
+<div class="profile-page">
+  <!-- Gestione errore profilo -->
+  <div class="error-container" *ngIf="profileError && !isLoadingProfile">
+    <div class="error-card">
+      <div class="error-icon">⚠️</div>
+      <h3 class="error-title">Error al cargar el perfil</h3>
+      <p class="error-message">{{ profileError }}</p>
+      <button class="retry-button" (click)="retryLoadProfile()">
+        <span class="button-icon">🔄</span>
+        Reintentar
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenuto principale profilo -->
+  <div class="profile-container" *ngIf="!profileError">
+    <!-- ==========================================
+         HEADER DEL PROFILO
+         ========================================== -->
+
+    <app-profile-header
+      [user]="currentUser"
+      [isOwnProfile]="isOwnProfile"
+      [isLoading]="isLoadingProfile"
+      (onEditProfile)="handleEditProfile()"
+      (onContactUser)="handleContactUser()"
+      (onReportUser)="handleReportUser()"
+    >
+    </app-profile-header>
+
+    <!-- ==========================================
+         STATISTICHE DEL PROFILO
+         ========================================== -->
+
+    <app-profile-stats
+      [userStats]="userStats"
+      [isLoading]="isLoadingProfile"
+      [isOwnProfile]="isOwnProfile"
+    >
+    </app-profile-stats>
+
+    <!-- ==========================================
+         NAVIGAZIONE A TAB
+         ========================================== -->
+
+    <app-profile-tabs
+      [activeTab]="activeTab"
+      [isOwnProfile]="isOwnProfile"
+      [unreadNotifications]="unreadNotifications"
+      (onTabChange)="onTabChange($event)"
+    >
+    </app-profile-tabs>
+
+    <!-- ==========================================
+         CONTENUTO DEI TAB
+         ========================================== -->
+
+    <div class="tab-content">
+      <!-- TAB: ANNUNCI -->
+      <app-my-ads-list
+        *ngIf="activeTab === 'ads'"
+        [ads]="userAds"
+        [isOwnProfile]="isOwnProfile"
+        [userName]="currentUser?.displayName || ''"
+        [isLoading]="isLoadingAds"
+        [error]="adsError"
+        (onCreateAd)="handleCreateAd()"
+        (onEditAd)="handleEditAd($event)"
+        (onDeleteAd)="handleDeleteAd($event)"
+        (onViewAd)="handleViewAd($event)"
+      >
+      </app-my-ads-list>
+
+      <!-- TAB: RECENSIONI -->
+      <app-reviews-section
+        *ngIf="activeTab === 'reviews'"
+        [reviews]="userReviews"
+        [isLoading]="isLoadingReviews"
+        [isOwnProfile]="isOwnProfile"
+        [averageRating]="currentUser?.rating?.averageRating || 0"
+        [totalReviews]="currentUser?.rating?.totalReviews || 0"
+      >
+      </app-reviews-section>
+
+      <!-- TAB: FAVORITI (solo proprio profilo) -->
+      <div
+        class="favorites-section"
+        *ngIf="activeTab === 'favorites' && isOwnProfile"
+      >
+        <div class="section-header">
+          <h2 class="section-title">❤️ Mis Favoritos</h2>
+          <p class="section-description" *ngIf="!isLoadingFavorites">
+            {{ favoriteAds.length }} anuncio{{
+              favoriteAds.length !== 1 ? "s" : ""
+            }}
+            guardado{{ favoriteAds.length !== 1 ? "s" : "" }}
+          </p>
+        </div>
+
+        <!-- Loading state -->
+        <div class="loading-state" *ngIf="isLoadingFavorites">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">Cargando favoritos...</p>
+        </div>
+
+        <!-- Empty state -->
+        <div
+          class="empty-state"
+          *ngIf="!isLoadingFavorites && favoriteAds.length === 0"
+        >
+          <div class="empty-icon">❤️</div>
+          <h3 class="empty-title">No tienes favoritos</h3>
+          <p class="empty-description">
+            Guarda tus anuncios favoritos para encontrarlos fácilmente más tarde
+          </p>
+          <button class="primary-button" routerLink="/search">
+            Explorar Anuncios
+          </button>
+        </div>
+
+        <!-- Grid favoriti -->
+        <div
+          class="favorites-grid"
+          *ngIf="!isLoadingFavorites && favoriteAds.length > 0"
+        >
+          <div class="favorite-card" *ngFor="let ad of favoriteAds">
+            <div class="favorite-image">
+              <img
+                alt="{{ ad.title }}"
+                [src]="ad.images[0] || '/assets/images/no-image.png'"
+                [alt]="ad.title"
+              />
+              <button
+                class="favorite-toggle active"
+                (click)="handleRemoveFavorite(ad.id)"
+              >
+                ❤️
+              </button>
+            </div>
+            <div class="favorite-content">
+              <h4 class="favorite-title">{{ ad.title }}</h4>
+              <p class="favorite-price" *ngIf="ad.price">
+                {{ ad.price }} {{ ad.currency }}
+              </p>
+              <p class="favorite-price free" *ngIf="!ad.price">Gratis</p>
+              <button class="view-button" (click)="handleViewAd(ad.id)">
+                Ver Anuncio
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: ATTIVITÀ (solo proprio profilo) -->
+      <div
+        class="activity-section"
+        *ngIf="activeTab === 'activity' && isOwnProfile"
+      >
+        <div class="section-header">
+          <h2 class="section-title">📊 Mi Actividad</h2>
+          <p class="section-description">
+            Resumen de tu actividad en la plataforma
+          </p>
+        </div>
+
+        <!-- Statistiche attività -->
+        <div class="activity-stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">👁️</div>
+            <div class="stat-value">{{ userStats?.totalViews || 0 }}</div>
+            <div class="stat-label">Visualizaciones totales</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">💬</div>
+            <div class="stat-value">{{ userStats?.totalContacts || 0 }}</div>
+            <div class="stat-label">Contactos recibidos</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value">{{ userStats?.soldItems || 0 }}</div>
+            <div class="stat-label">Ventas exitosas</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-value">{{ userStats?.responseRate || 0 }}%</div>
+            <div class="stat-label">Tasa de respuesta</div>
+          </div>
+        </div>
+
+        <!-- Attività recente -->
+        <div class="recent-activity-section">
+          <h3 class="subsection-title">Actividad Reciente</h3>
+
+          <div class="activity-list" *ngIf="recentActivity.length > 0">
+            <div class="activity-item" *ngFor="let activity of recentActivity">
+              <div class="activity-icon">{{ activity.icon }}</div>
+              <div class="activity-content">
+                <p class="activity-text">{{ activity.text }}</p>
+                <span class="activity-time">{{
+                  formatActivityTime(activity.timestamp)
+                }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="empty-state small" *ngIf="recentActivity.length === 0">
+            <p>No hay actividad reciente</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: CONFIGURAZIONI (solo proprio profilo) -->
+      <!-- <app-settings-panel
+        *ngIf="activeTab === 'settings' && isOwnProfile"
+        [user]="currentUser">
+      </app-settings-panel> -->
+    </div>
+  </div>
+</div>

@@ -1,0 +1,167 @@
+<div class="message-composer" [class.disabled]="disabled">
+  <!-- Preview allegati -->
+  <div class="attachments-preview" *ngIf="attachments.length > 0">
+    <div
+      class="attachment-item"
+      *ngFor="let attachment of attachments; let i = index"
+    >
+      <!-- Preview immagine -->
+      <div class="attachment-preview" *ngIf="attachment.type === 'image'">
+        <img
+          alt="Image Preview"
+          [src]="attachment.preview"
+          [alt]="attachment.name"
+        />
+        <button
+          class="remove-attachment"
+          (click)="removeAttachment(i)"
+          title="Eliminar"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- Preview documento -->
+      <div
+        class="attachment-preview document"
+        *ngIf="attachment.type !== 'image'"
+      >
+        <div class="document-icon">📄</div>
+        <div class="document-info">
+          <span class="document-name">{{ attachment.name }}</span>
+          <span class="document-size">{{
+            formatFileSize(attachment.size)
+          }}</span>
+        </div>
+        <button
+          class="remove-attachment"
+          (click)="removeAttachment(i)"
+          title="Eliminar"
+        >
+          ✕
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra di composizione -->
+  <div class="composer-bar">
+    <!-- Pulsanti azioni sinistra -->
+    <div class="composer-actions left">
+      <!-- Allegare immagini -->
+      <button
+        class="action-button"
+        (click)="triggerFileInput('image')"
+        [disabled]="disabled || isSending"
+        title="Adjuntar imagen"
+      >
+        <span class="action-icon">📷</span>
+      </button>
+
+      <!-- Allegare file -->
+      <button
+        class="action-button"
+        (click)="triggerFileInput('file')"
+        [disabled]="disabled || isSending"
+        title="Adjuntar archivo"
+      >
+        <span class="action-icon">📎</span>
+      </button>
+
+      <!-- Emoji (placeholder per futura implementazione) -->
+      <button
+        class="action-button"
+        (click)="toggleEmojiPicker()"
+        [disabled]="disabled || isSending"
+        title="Añadir emoji"
+      >
+        <span class="action-icon">😊</span>
+      </button>
+    </div>
+
+    <!-- Campo di testo -->
+    <div class="text-input-container">
+      <textarea
+        placeholder="Escribe un mensaje..."
+        #messageInput
+        class="message-input"
+        [(ngModel)]="messageText"
+        (input)="onInputChange()"
+        (keydown)="onKeyDown($event)"
+        [placeholder]="placeholder"
+        [disabled]="disabled || isSending"
+        [rows]="textareaRows"
+        [maxlength]="maxLength"
+      >
+      </textarea>
+
+      <!-- Contatore caratteri -->
+      <div
+        class="char-counter"
+        *ngIf="showCharCounter && messageText.length > maxLength - 100"
+      >
+        {{ messageText.length }}/{{ maxLength }}
+      </div>
+    </div>
+
+    <!-- Pulsante invio -->
+    <div class="composer-actions right">
+      <button
+        class="send-button"
+        (click)="sendMessage()"
+        [disabled]="!canSend()"
+        [class.sending]="isSending"
+        title="Enviar mensaje"
+      >
+        <span class="send-icon" *ngIf="!isSending">📤</span>
+        <span class="sending-spinner" *ngIf="isSending">
+          <span class="spinner"></span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Indicatore "Sta scrivendo..." -->
+  <div class="typing-indicator" *ngIf="showTypingIndicator">
+    <span class="typing-text">{{ typingUserName }} está escribiendo</span>
+    <span class="typing-dots">
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </span>
+  </div>
+
+  <!-- Suggerimenti rapidi -->
+  <div
+    class="quick-suggestions"
+    *ngIf="showQuickSuggestions && quickSuggestions.length > 0"
+  >
+    <button
+      class="suggestion-chip"
+      *ngFor="let suggestion of quickSuggestions"
+      (click)="applySuggestion(suggestion)"
+    >
+      {{ suggestion }}
+    </button>
+  </div>
+
+  <!-- Input file nascosti -->
+  <input
+    class="hidden-file-input"
+    title="Input Image"
+    #imageInput
+    type="file"
+    accept="image/*"
+    multiple
+    (change)="onFileSelected($event, 'image')"
+  />
+
+  <input
+    class="hidden-file-input"
+    title="Input File"
+    #fileInput
+    type="file"
+    multiple
+    (change)="onFileSelected($event, 'file')"
+  />
+</div>

@@ -1,0 +1,268 @@
+<div class="messages-container">
+  <!-- Header Mobile con back button -->
+  <div class="messages-header" *ngIf="isMobileView && selectedConversation">
+    <button class="back-button" (click)="deselectConversation()">
+      ← Volver
+    </button>
+    <h2 class="header-title">Mensajes</h2>
+  </div>
+
+  <!-- Layout principale -->
+  <div
+    class="messages-layout"
+    [class.mobile-chat-open]="isMobileView && selectedConversation"
+  >
+    <!-- SIDEBAR: Lista conversazioni -->
+    <aside
+      class="conversations-sidebar"
+      [class.hidden-mobile]="isMobileView && selectedConversation"
+    >
+      <!-- Header con ricerca -->
+      <div class="sidebar-header">
+        <h1 class="sidebar-title">💬 Mensajes</h1>
+
+        <!-- Barra di ricerca -->
+        <div class="search-box">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Buscar conversaciones..."
+            [(ngModel)]="searchQuery"
+            (input)="filterConversations()"
+          />
+          <span class="search-icon">🔍</span>
+        </div>
+
+        <!-- Filtri rapidi -->
+        <div class="quick-filters">
+          <button
+            class="filter-chip"
+            [class.active]="conversationFilter === 'all'"
+            (click)="setConversationFilter('all')"
+          >
+            Todas ({{ getTotalConversations() }})
+          </button>
+
+          <button
+            class="filter-chip"
+            [class.active]="conversationFilter === 'unread'"
+            (click)="setConversationFilter('unread')"
+          >
+            No leídas ({{ getUnreadCount() }})
+          </button>
+
+          <button
+            class="filter-chip"
+            [class.active]="conversationFilter === 'archived'"
+            (click)="setConversationFilter('archived')"
+          >
+            Archivadas
+          </button>
+        </div>
+      </div>
+
+      <!-- Lista conversazioni -->
+      <div class="sidebar-content">
+        <app-conversation-list
+          [conversations]="getFilteredConversations()"
+          [selectedConversationId]="selectedConversation?.id"
+          [currentUserId]="currentUserId"
+          [isLoading]="isLoadingConversations"
+          (onSelectConversation)="selectConversation($event)"
+          (onArchiveConversation)="archiveConversation($event)"
+          (onDeleteConversation)="deleteConversation($event)"
+        >
+        </app-conversation-list>
+
+        <!-- Empty state -->
+        <div
+          class="empty-conversations"
+          *ngIf="!isLoadingConversations && conversations.length === 0"
+        >
+          <div class="empty-icon">💬</div>
+          <h3>No tienes conversaciones</h3>
+          <p>
+            Cuando contactes a alguien sobre un anuncio, la conversación
+            aparecerá aquí.
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN: Chat view -->
+    <main
+      class="chat-main"
+      [class.visible-mobile]="isMobileView && selectedConversation"
+    >
+      <!-- Empty state quando non c'è conversazione selezionata -->
+      <div class="chat-empty-state" *ngIf="!selectedConversation">
+        <div class="empty-illustration">
+          <div class="illustration-icon">💭</div>
+          <div class="illustration-text">
+            <h2>Selecciona una conversación</h2>
+            <p>Elige una conversación de la lista para empezar a chatear</p>
+          </div>
+        </div>
+
+        <!-- Tips per nuovi utenti -->
+        <div class="chat-tips">
+          <h3>💡 Consejos para un buen chat:</h3>
+          <ul>
+            <li>Sé claro y específico en tus mensajes</li>
+            <li>Responde dentro de 24 horas</li>
+            <li>Sé respetuoso y profesional</li>
+            <li>No compartas información personal sensible</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Chat attivo -->
+      <div class="chat-container" *ngIf="selectedConversation">
+        <!-- Header del chat -->
+        <div class="chat-header">
+          <div class="chat-header-user">
+            <img
+              alt="User Avatar"
+              [src]="getOtherUserAvatar(selectedConversation)"
+              [alt]="getOtherUserName(selectedConversation)"
+              class="user-avatar"
+            />
+
+            <div class="user-info">
+              <h3 class="user-name">
+                {{ getOtherUserName(selectedConversation) }}
+                <span
+                  class="verified-badge"
+                  *ngIf="isUserVerified(selectedConversation)"
+                  >✓</span
+                >
+              </h3>
+
+              <div class="user-status">
+                <span
+                  class="status-indicator"
+                  [class.online]="isUserOnline(selectedConversation)"
+                ></span>
+                <span class="status-text">
+                  {{ getUserStatusText(selectedConversation) }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Azioni chat -->
+          <div class="chat-header-actions">
+            <button
+              class="header-action-btn"
+              (click)="viewUserProfile(selectedConversation)"
+              [attr.title]="'Ver perfil'"
+            >
+              👤
+            </button>
+
+            <button
+              class="header-action-btn"
+              (click)="viewRelatedAd(selectedConversation)"
+              *ngIf="selectedConversation.adId"
+              [attr.title]="'Ver anuncio'"
+            >
+              📢
+            </button>
+
+            <button
+              class="header-action-btn"
+              (click)="toggleChatOptions()"
+              [attr.title]="'Opciones'"
+            >
+              ⋮
+            </button>
+
+            <!-- Dropdown opzioni -->
+            <div class="chat-options-dropdown" *ngIf="showChatOptions">
+              <button
+                class="dropdown-item"
+                (click)="muteConversation(selectedConversation)"
+              >
+                <span class="item-icon">🔕</span>
+                <span class="item-text">Silenciar</span>
+              </button>
+
+              <button
+                class="dropdown-item"
+                (click)="archiveConversation(selectedConversation.id)"
+              >
+                <span class="item-icon">📦</span>
+                <span class="item-text">Archivar</span>
+              </button>
+
+              <button
+                class="dropdown-item"
+                (click)="blockUser(selectedConversation)"
+              >
+                <span class="item-icon">🚫</span>
+                <span class="item-text">Bloquear usuario</span>
+              </button>
+
+              <div class="dropdown-divider"></div>
+
+              <button
+                class="dropdown-item danger"
+                (click)="deleteConversation(selectedConversation.id)"
+              >
+                <span class="item-icon">🗑️</span>
+                <span class="item-text">Eliminar chat</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info annuncio correlato -->
+        <div
+          class="related-ad-info"
+          *ngIf="selectedConversation.adId && relatedAdInfo"
+        >
+          <img
+            alt="Ad Thumbnail"
+            [src]="relatedAdInfo.image"
+            [alt]="relatedAdInfo.title"
+            class="ad-thumbnail"
+          />
+
+          <div class="ad-details">
+            <h4 class="ad-title">{{ relatedAdInfo.title }}</h4>
+            <p class="ad-price">
+              {{ relatedAdInfo.price }} {{ relatedAdInfo.currency }}
+            </p>
+          </div>
+
+          <button
+            class="view-ad-btn"
+            (click)="viewRelatedAd(selectedConversation)"
+          >
+            Ver Anuncio
+          </button>
+        </div>
+
+        <!-- Vista chat con messaggi -->
+        <app-chat-view
+          [messages]="currentMessages"
+          [currentUserId]="currentUserId"
+          [isLoading]="isLoadingMessages"
+          [isTyping]="isOtherUserTyping"
+          [otherUserName]="getOtherUserName(selectedConversation)"
+          (onLoadMore)="loadMoreMessages()"
+        >
+        </app-chat-view>
+
+        <!-- Composer per nuovi messaggi -->
+        <app-message-composer
+          [disabled]="isSendingMessage"
+          [placeholder]="getComposerPlaceholder()"
+          (onSendMessage)="sendMessage($event)"
+          (onTyping)="handleTyping()"
+        >
+        </app-message-composer>
+      </div>
+    </main>
+  </div>
+</div>

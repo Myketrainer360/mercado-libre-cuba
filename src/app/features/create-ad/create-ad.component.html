@@ -1,0 +1,613 @@
+<div class="create-ad-container">
+  <!-- ==========================================
+           HEADER CON PROGRESS INDICATOR
+           ========================================== -->
+
+  <header class="page-header">
+    <div class="header-content">
+      <button class="back-button" (click)="goBack()">← Volver</button>
+
+      <div class="header-text">
+        <h1 class="page-title">Crear Nuevo Anuncio</h1>
+        <p class="page-subtitle">
+          Comparte lo que ofreces o buscas con tu comunidad
+        </p>
+      </div>
+    </div>
+
+    <!-- Indicatore di progresso -->
+    <div class="progress-container">
+      <div class="progress-steps">
+        <div
+          class="step"
+          [class.active]="currentStep === 1"
+          [class.completed]="currentStep > 1"
+        >
+          <span class="step-number">1</span>
+          <span class="step-label">Tipo</span>
+        </div>
+
+        <div class="step-line"></div>
+
+        <div
+          class="step"
+          [class.active]="currentStep === 2"
+          [class.completed]="currentStep > 2"
+        >
+          <span class="step-number">2</span>
+          <span class="step-label">Details</span>
+        </div>
+
+        <div class="step-line"></div>
+
+        <div
+          class="step"
+          [class.active]="currentStep === 3"
+          [class.completed]="currentStep > 3"
+        >
+          <span class="step-number">3</span>
+          <span class="step-label">Precio</span>
+        </div>
+
+        <div class="step-line"></div>
+
+        <div
+          class="step"
+          [class.active]="currentStep === 4"
+          [class.completed]="currentStep > 4"
+        >
+          <span class="step-number">4</span>
+          <span class="step-label">Fotos</span>
+        </div>
+      </div>
+
+      <div class="progress-bar">
+        <div
+          class="progress-fill"
+          [style.width.%]="(currentStep / 4) * 100"
+        ></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================
+           FORM MULTI-STEP
+           ========================================== */
+
+      <form [formGroup]="adForm" class="multi-step-form">
+
+        <!-- ==========================================
+             STEP 1: TIPO E CATEGORIA
+             ========================================== -->
+
+  <div class="form-step" *ngIf="currentStep === 1">
+    <div class="step-content">
+      <h2 class="step-title">¿Qué tipo de anuncio quieres crear?</h2>
+      <p class="step-description">
+        Selecciona si ofreces algo o si buscas algo específico
+      </p>
+
+      <!-- Selector del tipo di annuncio -->
+      <div class="ad-type-selector">
+        <div
+          class="type-option"
+          [class.selected]="adForm.get('type')?.value === 'offer'"
+          (click)="selectAdType('offer')"
+        >
+          <div class="type-icon offer">💰</div>
+          <h3>Ofrezco</h3>
+          <p>Tengo algo para vender o intercambiar</p>
+        </div>
+
+        <div
+          class="type-option"
+          [class.selected]="adForm.get('type')?.value === 'request'"
+          (click)="selectAdType('request')"
+        >
+          <div class="type-icon request">🔍</div>
+          <h3>Busco</h3>
+          <p>Necesito algo específico y quiero comprarlo</p>
+        </div>
+      </div>
+
+      <!-- Selector della categoria -->
+      <div class="category-section" *ngIf="adForm.get('type')?.value">
+        <h3 class="section-subtitle">¿A qué categoría pertenece?</h3>
+
+        <div class="categories-grid">
+          <div
+            class="category-option"
+            *ngFor="let category of categories"
+            [class.selected]="adForm.get('category')?.value === category.value"
+            (click)="selectCategory(category.value)"
+          >
+            <span class="category-icon">{{ category.icon }}</span>
+            <span class="category-name">{{ category.label }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button
+        type="button"
+        class="next-button"
+        [disabled]="!isStep1Valid()"
+        (click)="nextStep()"
+      >
+        Continuar
+      </button>
+    </div>
+  </div>
+
+  <!-- ==========================================
+             STEP 2: DETTAGLI PRINCIPALI
+             ========================================== -->
+
+  <div class="form-step" *ngIf="currentStep === 2">
+    <div class="step-content">
+      <h2 class="step-title">Cuéntanos más detalles</h2>
+      <p class="step-description">
+        Información básica sobre tu {{ getAdTypeText() }}
+      </p>
+
+      <!-- Titolo dell'annuncio -->
+      <div class="form-group">
+        <label for="title" class="form-label">
+          Título del anuncio *
+          <span class="label-help">Sé específico y claro</span>
+        </label>
+        <input
+          type="text"
+          id="title"
+          class="form-input"
+          formControlName="title"
+          placeholder="ej. iPhone 12 en excelente estado"
+          [class.error]="isFieldInvalid('title')"
+        />
+
+        <div class="field-error" *ngIf="isFieldInvalid('title')">
+          El título es obligatorio y debe tener al menos 10 caracteres
+        </div>
+
+        <div class="char-counter">
+          {{ adForm.get("title")?.value?.length || 0 }}/100 caracteres
+        </div>
+      </div>
+
+      <!-- Descrizione dettagliata -->
+      <div class="form-group">
+        <label for="description" class="form-label">
+          Descripción detallada *
+          <span class="label-help"
+            >Incluye estado, características importantes, etc.</span
+          >
+        </label>
+        <textarea
+          id="description"
+          class="form-textarea"
+          formControlName="description"
+          rows="5"
+          placeholder="Describe tu {{
+            getAdTypeText()
+          }} con el mayor detalle posible..."
+          [class.error]="isFieldInvalid('description')"
+        >
+        </textarea>
+
+        <div class="field-error" *ngIf="isFieldInvalid('description')">
+          La descripción es obligatoria y debe tener al menos 20 caracteres
+        </div>
+
+        <div class="char-counter">
+          {{ adForm.get("description")?.value?.length || 0 }}/500 caracteres
+        </div>
+      </div>
+
+      <!-- Località -->
+      <div class="location-section">
+        <h3 class="section-subtitle">Ubicación</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="province" class="form-label">Provincia *</label>
+            <select
+              id="province"
+              class="form-select"
+              formControlName="province"
+              (change)="onProvinceChange()"
+              [class.error]="isFieldInvalid('province')"
+            >
+              <option value="">Selecciona tu provincia</option>
+              <option *ngFor="let province of provinces" [value]="province">
+                {{ province }}
+              </option>
+            </select>
+
+            <div class="field-error" *ngIf="isFieldInvalid('province')">
+              Selecciona tu provincia
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="city" class="form-label">Ciudad/Municipio *</label>
+            <input
+              type="text"
+              id="city"
+              class="form-input"
+              formControlName="city"
+              placeholder="ej. Vedado, Centro, etc."
+              [class.error]="isFieldInvalid('city')"
+            />
+
+            <div class="field-error" *ngIf="isFieldInvalid('city')">
+              Indica tu ciudad o municipio
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="form-group">
+        <label class="form-label">
+          Palabras clave (opcional)
+          <span class="label-help">Ayuda a otros a encontrar tu anuncio</span>
+        </label>
+
+        <div class="tags-input-container">
+          <input
+            type="text"
+            class="form-input"
+            [(ngModel)]="newTag"
+            [ngModelOptions]="{ standalone: true }"
+            placeholder="Escribe una palabra y presiona Enter"
+            (keydown.enter)="addTag($event)"
+          />
+        </div>
+
+        <div class="tags-list" *ngIf="selectedTags.length > 0">
+          <span class="tag-item" *ngFor="let tag of selectedTags; index as i">
+            #{{ tag }}
+            <button type="button" class="remove-tag" (click)="removeTag(i)">
+              ×
+            </button>
+          </span>
+        </div>
+
+        <div class="tags-suggestions">
+          <span>Sugerencias:</span>
+          <button
+            type="button"
+            class="suggestion-tag"
+            *ngFor="let suggestion of getTagSuggestions()"
+            (click)="addSuggestedTag(suggestion)"
+          >
+            {{ suggestion }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button type="button" class="prev-button" (click)="previousStep()">
+        ← Anterior
+      </button>
+      <button
+        type="button"
+        class="next-button"
+        [disabled]="!isStep2Valid()"
+        (click)="nextStep()"
+      >
+        Continuar
+      </button>
+    </div>
+  </div>
+
+  <!-- ==========================================
+             STEP 3: PREZZO E CONDIZIONI
+             ========================================== -->
+
+  <div class="form-step" *ngIf="currentStep === 3">
+    <div class="step-content">
+      <h2 class="step-title">
+        {{
+          adForm.get("type")?.value === "offer"
+            ? "¿Cuánto pides?"
+            : "¿Cuánto ofreces?"
+        }}
+      </h2>
+      <p class="step-description">
+        Define el precio o si es gratis/intercambio
+      </p>
+
+      <!-- Opzioni di prezzo -->
+      <div class="price-options">
+        <div
+          class="price-option"
+          [class.selected]="priceType === 'free'"
+          (click)="setPriceType('free')"
+        >
+          <div class="option-icon">🆓</div>
+          <h3>Gratis</h3>
+          <p>No cobro nada por esto</p>
+        </div>
+
+        <div
+          class="price-option"
+          [class.selected]="priceType === 'exchange'"
+          (click)="setPriceType('exchange')"
+        >
+          <div class="option-icon">🔄</div>
+          <h3>Intercambio</h3>
+          <p>Lo cambio por otra cosa</p>
+        </div>
+
+        <div
+          class="price-option"
+          [class.selected]="priceType === 'paid'"
+          (click)="setPriceType('paid')"
+        >
+          <div class="option-icon">💵</div>
+          <h3>Precio fijo</h3>
+          <p>Tengo un precio específico</p>
+        </div>
+      </div>
+
+      <!-- Input del prezzo quando è paid -->
+      <div class="price-input-section" *ngIf="priceType === 'paid'">
+        <div class="form-row">
+          <div class="form-group price-group">
+            <label for="price" class="form-label">Precio</label>
+            <div class="price-input-container">
+              <input
+                type="number"
+                id="price"
+                class="form-input price-input"
+                formControlName="price"
+                placeholder="0"
+                min="0"
+                step="0.01"
+              />
+
+              <label for="currency" class="visually-hidden">Moneda</label>
+              <select
+                id="currency"
+                class="currency-select"
+                formControlName="currency"
+                aria-label="Moneda"
+              >
+                <option value="CUP">CUP</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="price-tips">
+          <h4>💡 Consejos para el precio:</h4>
+          <ul>
+            <li>Investiga precios similares antes de decidir</li>
+            <li>Considera el estado del artículo</li>
+            <li>Deja espacio para negociar</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Dettagli per intercambio -->
+      <div class="exchange-section" *ngIf="priceType === 'exchange'">
+        <div class="form-group">
+          <label for="exchangeFor" class="form-label">
+            ¿Por qué lo cambiarías?
+          </label>
+          <textarea
+            id="exchangeFor"
+            class="form-textarea"
+            [(ngModel)]="exchangeDetails"
+            [ngModelOptions]="{ standalone: true }"
+            rows="3"
+            placeholder="ej. Busco un teléfono, ropa de mi talla, servicios de reparación..."
+          >
+          </textarea>
+        </div>
+      </div>
+
+      <!-- Opzioni di negoziazione -->
+      <div class="negotiation-section">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            formControlName="negotiable"
+            class="form-checkbox"
+          />
+          <span class="checkbox-text">El precio es negociable</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button type="button" class="prev-button" (click)="previousStep()">
+        ← Anterior
+      </button>
+      <button
+        type="button"
+        class="next-button"
+        [disabled]="!isStep3Valid()"
+        (click)="nextStep()"
+      >
+        Continuar
+      </button>
+    </div>
+  </div>
+
+  <!-- ==========================================
+             STEP 4: UPLOAD FOTO E REVISIONE
+             ========================================== -->
+
+  <div class="form-step" *ngIf="currentStep === 4">
+    <div class="step-content">
+      <h2 class="step-title">Agrega fotos (opcional)</h2>
+      <p class="step-description">
+        Las fotos atraen más atención y generan más confianza
+      </p>
+
+      <!-- Area di upload foto -->
+      <div class="photo-upload-section">
+        <div
+          class="upload-area"
+          (click)="triggerFileInput()"
+          [class.has-photos]="uploadedPhotos.length > 0"
+        >
+          <input
+            type="file"
+            #fileInput
+            accept="image/*"
+            multiple
+            style="display: none"
+            (change)="onPhotosSelected($event)"
+          />
+
+          <div class="upload-content" *ngIf="uploadedPhotos.length === 0">
+            <div class="upload-icon">📸</div>
+            <h3>Sube hasta 5 fotos</h3>
+            <p>Haz clic aquí o arrastra las imágenes</p>
+            <button type="button" class="upload-button">
+              Seleccionar Fotos
+            </button>
+          </div>
+        </div>
+
+        <!-- Preview delle foto caricate -->
+        <div class="photos-preview" *ngIf="uploadedPhotos.length > 0">
+          <div
+            class="photo-item"
+            *ngFor="let photo of uploadedPhotos; index as i"
+          >
+            <img alt="images" [src]="photo.preview" [alt]="'Foto ' + (i + 1)" />
+            <button type="button" class="remove-photo" (click)="removePhoto(i)">
+              ×
+            </button>
+            <div class="photo-main" *ngIf="i === 0">Principal</div>
+          </div>
+
+          <div
+            class="add-more-photos"
+            *ngIf="uploadedPhotos.length < 5"
+            (click)="triggerFileInput()"
+          >
+            <div class="add-icon">+</div>
+            <span>Agregar más</span>
+          </div>
+        </div>
+
+        <div class="photo-tips">
+          <h4>📸 Consejos para buenas fotos:</h4>
+          <ul>
+            <li>Usa buena iluminación natural</li>
+            <li>Muestra el artículo desde varios ángulos</li>
+            <li>Incluye detalles importantes</li>
+            <li>La primera foto será la principal</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Revisione finale dell'annuncio -->
+      <div class="ad-preview">
+        <h3 class="preview-title">Vista previa de tu anuncio</h3>
+
+        <div class="preview-card">
+          <div class="preview-image" *ngIf="uploadedPhotos.length > 0">
+            <img [src]="uploadedPhotos[0].preview" alt="Preview" />
+          </div>
+          <div
+            class="preview-image no-image"
+            *ngIf="uploadedPhotos.length === 0"
+          >
+            <span>Sin foto</span>
+          </div>
+
+          <div class="preview-content">
+            <div class="preview-type-badge" [class]="adForm.get('type')?.value">
+              {{
+                adForm.get("type")?.value === "offer"
+                  ? "💰 OFREZCO"
+                  : "🔍 BUSCO"
+              }}
+            </div>
+
+            <h4 class="preview-title-text">
+              {{ adForm.get("title")?.value || "Título del anuncio" }}
+            </h4>
+
+            <p class="preview-description">
+              {{ truncateText(adForm.get("description")?.value || "", 100) }}
+            </p>
+
+            <div class="preview-price">
+              <span *ngIf="priceType === 'free'">Gratis</span>
+              <span *ngIf="priceType === 'exchange'">Intercambio</span>
+              <span *ngIf="priceType === 'paid'">
+                {{ adForm.get("price")?.value | number }}
+                {{ adForm.get("currency")?.value }}
+              </span>
+            </div>
+
+            <div class="preview-location">
+              📍 {{ adForm.get("city")?.value }},
+              {{ adForm.get("province")?.value }}
+            </div>
+
+            <div class="preview-tags" *ngIf="selectedTags.length > 0">
+              <span
+                class="preview-tag"
+                *ngFor="let tag of selectedTags.slice(0, 3)"
+              >
+                #{{ tag }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button type="button" class="prev-button" (click)="previousStep()">
+        ← Anterior
+      </button>
+      <button
+        type="button"
+        class="publish-button"
+        [disabled]="isSubmitting"
+        (click)="submitAd()"
+      >
+        <span *ngIf="!isSubmitting">🚀 Publicar Anuncio</span>
+        <span *ngIf="isSubmitting">Publicando...</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ==========================================
+           MODAL DI SUCCESSO
+           ========================================== -->
+
+  <div
+    class="success-modal"
+    *ngIf="showSuccessModal"
+    (click)="closeSuccessModal()"
+  >
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="success-icon">🎉</div>
+      <h2>¡Anuncio Publicado!</h2>
+      <p>Tu anuncio ya está visible para toda la comunidad</p>
+
+      <div class="modal-actions">
+        <button class="secondary-button" (click)="createAnother()">
+          Crear Otro Anuncio
+        </button>
+        <button class="primary-button" (click)="goToMyAds()">
+          Ver Mis Anuncios
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,73 @@
+<nav class="profile-tabs" [attr.aria-label]="'Navegación del perfil'">
+  <div class="tabs-container">
+    <!-- Tab: Annunci -->
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'ads'"
+      (click)="selectTab('ads')"
+      [attr.aria-current]="activeTab === 'ads' ? 'page' : null"
+    >
+      <span class="tab-icon">📢</span>
+      <span class="tab-label">
+        {{ isOwnProfile ? "Mis Anuncios" : "Anuncios" }}
+      </span>
+    </button>
+
+    <!-- Tab: Recensioni -->
+    <button
+      class="tab-button"
+      [class.active]="activeTab === 'reviews'"
+      (click)="selectTab('reviews')"
+      [attr.aria-current]="activeTab === 'reviews' ? 'page' : null"
+    >
+      <span class="tab-icon">⭐</span>
+      <span class="tab-label">Reseñas</span>
+    </button>
+
+    <!-- Tab: Preferiti (solo per proprio profilo) -->
+    <button
+      *ngIf="isOwnProfile"
+      class="tab-button"
+      [class.active]="activeTab === 'favorites'"
+      (click)="selectTab('favorites')"
+      [attr.aria-current]="activeTab === 'favorites' ? 'page' : null"
+    >
+      <span class="tab-icon">❤️</span>
+      <span class="tab-label">Favoritos</span>
+    </button>
+
+    <!-- Tab: Attività (solo per proprio profilo) -->
+    <button
+      *ngIf="isOwnProfile"
+      class="tab-button"
+      [class.active]="activeTab === 'activity'"
+      (click)="selectTab('activity')"
+      [attr.aria-current]="activeTab === 'activity' ? 'page' : null"
+    >
+      <span class="tab-icon">📊</span>
+      <span class="tab-label">Actividad</span>
+      <span class="notification-badge" *ngIf="unreadNotifications > 0">
+        {{ unreadNotifications }}
+      </span>
+    </button>
+
+    <!-- Tab: Impostazioni (solo per proprio profilo) -->
+    <button
+      *ngIf="isOwnProfile"
+      class="tab-button"
+      [class.active]="activeTab === 'settings'"
+      (click)="selectTab('settings')"
+      [attr.aria-current]="activeTab === 'settings' ? 'page' : null"
+    >
+      <span class="tab-icon">⚙️</span>
+      <span class="tab-label">Configuración</span>
+    </button>
+
+    <!-- Indicatore di tab attivo (sliding underline) -->
+    <div
+      class="active-indicator"
+      [style.transform]="'translateX(' + getIndicatorPosition() + 'px)'"
+      [style.width.px]="getIndicatorWidth()"
+    ></div>
+  </div>
+</nav>

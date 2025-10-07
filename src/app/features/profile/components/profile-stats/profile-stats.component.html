@@ -1,0 +1,123 @@
+<section class="profile-stats" *ngIf="!isLoading && userStats">
+  <!-- Grid statistiche -->
+  <div class="stats-grid">
+    <!-- Stat: Annunci Attivi -->
+    <div class="stat-card" [class.clickable]="isOwnProfile">
+      <div class="stat-header">
+        <span class="stat-icon">📢</span>
+        <span class="stat-label">Anuncios Activos</span>
+      </div>
+      <div class="stat-value">{{ userStats.activeAds }}</div>
+      <div class="stat-footer">
+        <span class="stat-detail">de {{ userStats.totalAds }} totales</span>
+      </div>
+    </div>
+
+    <!-- Stat: Ventas Exitosas -->
+    <div class="stat-card success">
+      <div class="stat-header">
+        <span class="stat-icon">✅</span>
+        <span class="stat-label">Ventas Exitosas</span>
+      </div>
+      <div class="stat-value">{{ userStats.soldItems }}</div>
+      <div class="stat-footer">
+        <span class="stat-detail">{{ getSuccessRate() }}% éxito</span>
+      </div>
+    </div>
+
+    <!-- Stat: Visualizaciones -->
+    <div class="stat-card info">
+      <div class="stat-header">
+        <span class="stat-icon">👁️</span>
+        <span class="stat-label">Visualizaciones</span>
+      </div>
+      <div class="stat-value">{{ formatNumber(userStats.totalViews) }}</div>
+      <div class="stat-footer">
+        <span class="stat-detail"
+          >{{ getAverageViewsPerAd() }} por anuncio</span
+        >
+      </div>
+    </div>
+
+    <!-- Stat: Contactos -->
+    <div class="stat-card warning">
+      <div class="stat-header">
+        <span class="stat-icon">💬</span>
+        <span class="stat-label">Contactos</span>
+      </div>
+      <div class="stat-value">{{ userStats.totalContacts }}</div>
+      <div class="stat-footer">
+        <span class="stat-detail">{{ getConversionRate() }}% conversión</span>
+      </div>
+    </div>
+
+    <!-- Stat: Tasa de Respuesta -->
+    <div class="stat-card primary" *ngIf="userStats.responseRate">
+      <div class="stat-header">
+        <span class="stat-icon">⚡</span>
+        <span class="stat-label">Tasa de Respuesta</span>
+      </div>
+      <div class="stat-value">{{ userStats.responseRate }}%</div>
+      <div class="stat-footer">
+        <span
+          class="stat-detail"
+          [class.excellent]="userStats.responseRate >= 90"
+        >
+          {{ getResponseRateLabel() }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Stat: Tiempo de Respuesta -->
+    <div class="stat-card" *ngIf="userStats.averageResponseTime">
+      <div class="stat-header">
+        <span class="stat-icon">⏱️</span>
+        <span class="stat-label">Tiempo de Respuesta</span>
+      </div>
+      <div class="stat-value">{{ userStats.averageResponseTime }}h</div>
+      <div class="stat-footer">
+        <span class="stat-detail">Promedio</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Indicatori di performance (solo per proprio profilo) -->
+  <div
+    class="performance-indicators"
+    *ngIf="isOwnProfile && showPerformanceIndicators()"
+  >
+    <div class="indicator excellent" *ngIf="userStats.responseRate >= 90">
+      <span class="indicator-icon">🌟</span>
+      <span class="indicator-text"
+        >¡Excelente vendedor! Mantén tu alta tasa de respuesta</span
+      >
+    </div>
+
+    <div
+      class="indicator good"
+      *ngIf="userStats.soldItems >= 10 && userStats.soldItems < 50"
+    >
+      <span class="indicator-icon">🎯</span>
+      <span class="indicator-text"
+        >Buen vendedor. ¡{{ 50 - userStats.soldItems }} ventas más para ser Top
+        Seller!</span
+      >
+    </div>
+
+    <div class="indicator info" *ngIf="userStats.totalViews < 100">
+      <span class="indicator-icon">💡</span>
+      <span class="indicator-text"
+        >Mejora tus fotos y descripciones para más visualizaciones</span
+      >
+    </div>
+  </div>
+</section>
+
+<!-- Loading skeleton -->
+<div class="stats-skeleton" *ngIf="isLoading">
+  <div class="skeleton-card" *ngFor="let item of [1, 2, 3, 4, 5, 6]">
+    <div class="skeleton-header"></div>
+    <div class="skeleton-value"></div>
+    <div class="skeleton-footer"></div>
+  </div>
+</div>

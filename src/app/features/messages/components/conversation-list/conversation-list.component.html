@@ -1,0 +1,130 @@
+<div class="conversation-list">
+  <!-- Loading skeleton -->
+  <div class="loading-conversations" *ngIf="isLoading">
+    <div class="skeleton-item" *ngFor="let item of [1, 2, 3, 4, 5]">
+      <div class="skeleton-avatar"></div>
+      <div class="skeleton-content">
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line short"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista conversazioni -->
+  <div class="conversations-container" *ngIf="!isLoading">
+    <div
+      class="conversation-item"
+      *ngFor="let conversation of conversations; trackBy: trackByConversationId"
+      [class.selected]="conversation.id === selectedConversationId"
+      [class.unread]="hasUnreadMessages(conversation)"
+      (click)="selectConversation(conversation)"
+    >
+      <!-- Avatar utente -->
+      <div class="avatar-container">
+        <img
+          alt="User Avatar"
+          [src]="getUserAvatar(conversation)"
+          [alt]="getUserName(conversation)"
+          class="user-avatar"
+        />
+
+        <!-- Badge non letti -->
+        <span class="unread-badge" *ngIf="getUnreadCount(conversation) > 0">
+          {{ getUnreadCount(conversation) }}
+        </span>
+
+        <!-- Indicatore online -->
+        <div class="online-indicator" *ngIf="isUserOnline(conversation)"></div>
+      </div>
+
+      <!-- Info conversazione -->
+      <div class="conversation-info">
+        <div class="conversation-header">
+          <h4 class="user-name">
+            {{ getUserName(conversation) }}
+            <span class="verified-icon" *ngIf="isUserVerified(conversation)"
+              >✓</span
+            >
+          </h4>
+          <span class="conversation-time">
+            {{
+              formatTime(
+                conversation.lastMessage?.timestamp || conversation.updatedAt
+              )
+            }}
+          </span>
+        </div>
+
+        <div class="conversation-preview">
+          <p
+            class="last-message"
+            [class.unread]="hasUnreadMessages(conversation)"
+          >
+            <span
+              class="message-sender"
+              *ngIf="isLastMessageFromMe(conversation)"
+              >Tú:
+            </span>
+            {{ getLastMessagePreview(conversation) }}
+          </p>
+
+          <!-- Icone stato messaggio -->
+          <div class="message-status" *ngIf="isLastMessageFromMe(conversation)">
+            <span
+              class="status-icon"
+              [class]="getMessageStatusClass(conversation)"
+            >
+              {{ getMessageStatusIcon(conversation) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Info annuncio correlato -->
+        <div class="related-ad-tag" *ngIf="conversation.adId">
+          <span class="ad-icon">📢</span>
+          <span class="ad-label">Sobre un anuncio</span>
+        </div>
+      </div>
+
+      <!-- Azioni conversazione -->
+      <div class="conversation-actions" (click)="$event.stopPropagation()">
+        <button
+          class="action-btn"
+          (click)="showActions(conversation)"
+          [attr.title]="'Opciones'"
+        >
+          ⋮
+        </button>
+
+        <!-- Dropdown azioni -->
+        <div
+          class="actions-dropdown"
+          *ngIf="showActionsFor === conversation.id"
+        >
+          <button
+            class="action-item"
+            (click)="archiveConversation(conversation)"
+          >
+            <span class="action-icon">📦</span>
+            <span>Archivar</span>
+          </button>
+
+          <button
+            class="action-item danger"
+            (click)="deleteConversation(conversation)"
+          >
+            <span class="action-icon">🗑️</span>
+            <span>Eliminar</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stato vuoto -->
+  <div class="empty-state" *ngIf="!isLoading && conversations.length === 0">
+    <div class="empty-icon">💬</div>
+    <h3 class="empty-title">No hay conversaciones</h3>
+    <p class="empty-message">Tus conversaciones aparecerán aquí</p>
+  </div>
+</div>

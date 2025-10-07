@@ -1,0 +1,508 @@
+<section class="settings-panel">
+  <!-- Tabs impostazioni -->
+  <div class="settings-tabs">
+    <button
+      class="settings-tab"
+      [class.active]="activeSection === 'profile'"
+      (click)="activeSection = 'profile'"
+    >
+      <span class="tab-icon">👤</span>
+      <span class="tab-label">Perfil</span>
+    </button>
+
+    <button
+      class="settings-tab"
+      [class.active]="activeSection === 'notifications'"
+      (click)="activeSection = 'notifications'"
+    >
+      <span class="tab-icon">🔔</span>
+      <span class="tab-label">Notificaciones</span>
+    </button>
+
+    <button
+      class="settings-tab"
+      [class.active]="activeSection === 'privacy'"
+      (click)="activeSection = 'privacy'"
+    >
+      <span class="tab-icon">🔒</span>
+      <span class="tab-label">Privacidad</span>
+    </button>
+
+    <button
+      class="settings-tab"
+      [class.active]="activeSection === 'security'"
+      (click)="activeSection = 'security'"
+    >
+      <span class="tab-icon">🛡️</span>
+      <span class="tab-label">Seguridad</span>
+    </button>
+
+    <button
+      class="settings-tab"
+      [class.active]="activeSection === 'account'"
+      (click)="activeSection = 'account'"
+    >
+      <span class="tab-icon">⚙️</span>
+      <span class="tab-label">Cuenta</span>
+    </button>
+  </div>
+
+  <!-- SEZIONE: PROFILO -->
+  <div class="settings-section" *ngIf="activeSection === 'profile'">
+    <div class="section-header">
+      <h3 class="section-title">Editar Perfil</h3>
+      <p class="section-description">Actualiza tu información personal</p>
+    </div>
+
+    <form class="settings-form" (ngSubmit)="saveProfile()">
+      <!-- Avatar -->
+      <div class="form-group avatar-group">
+        <label class="form-label">Foto de perfil</label>
+        <div class="avatar-upload">
+          <img
+            [src]="localUser.avatar || '/assets/images/default-avatar.png'"
+            alt="Avatar"
+            class="avatar-preview"
+          />
+          <button type="button" class="upload-button">📷 Cambiar Foto</button>
+        </div>
+      </div>
+
+      <!-- Nombre -->
+      <div class="form-group">
+        <label class="form-label" for="displayName">Nombre completo</label>
+        <input
+          type="text"
+          id="displayName"
+          class="form-input"
+          [(ngModel)]="localUser.displayName"
+          name="displayName"
+          required
+          maxlength="50"
+        />
+      </div>
+
+      <!-- Username -->
+      <div class="form-group">
+        <label class="form-label" for="username">Nombre de usuario</label>
+        <input
+          type="text"
+          id="username"
+          class="form-input"
+          [(ngModel)]="localUser.username"
+          name="username"
+          required
+          pattern="[a-zA-Z0-9_]+"
+          maxlength="30"
+        />
+        <span class="form-hint">Solo letras, números y guiones bajos</span>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label class="form-label" for="email">Correo electrónico</label>
+        <input
+          type="email"
+          id="email"
+          class="form-input"
+          [(ngModel)]="localUser.email"
+          name="email"
+          required
+        />
+      </div>
+
+      <!-- Teléfono -->
+      <div class="form-group">
+        <label class="form-label" for="phone">Teléfono</label>
+        <input
+          type="tel"
+          id="phone"
+          class="form-input"
+          [(ngModel)]="localUser.phone"
+          name="phone"
+          placeholder="+53"
+        />
+      </div>
+
+      <!-- Bio -->
+      <div class="form-group">
+        <label class="form-label" for="bio">Biografía</label>
+        <textarea
+          id="bio"
+          class="form-textarea"
+          [(ngModel)]="localUser.bio"
+          name="bio"
+          rows="4"
+          maxlength="200"
+          placeholder="Cuéntanos algo sobre ti..."
+        ></textarea>
+        <span class="form-hint"
+          >{{ localUser.bio?.length || 0 }}/200 caracteres</span
+        >
+      </div>
+
+      <!-- Ubicación -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="province">Provincia</label>
+          <select
+            id="province"
+            class="form-select"
+            [(ngModel)]="localUser.location.province"
+            name="province"
+          >
+            <option value="">Selecciona una provincia</option>
+            <option *ngFor="let province of cubanProvinces" [value]="province">
+              {{ province }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="city">Ciudad</label>
+          <input
+            type="text"
+            id="city"
+            class="form-input"
+            [(ngModel)]="localUser.location.city"
+            name="city"
+          />
+        </div>
+      </div>
+
+      <!-- Redes sociales -->
+      <div class="form-group">
+        <label class="form-label">Redes Sociales (opcional)</label>
+
+        <div class="social-input">
+          <span class="social-icon">📱</span>
+          <input
+            type="tel"
+            class="form-input"
+            [(ngModel)]="localUser.socialLinks.whatsapp"
+            name="whatsapp"
+            placeholder="WhatsApp: +53..."
+          />
+        </div>
+
+        <div class="social-input">
+          <span class="social-icon">✈️</span>
+          <input
+            type="text"
+            class="form-input"
+            [(ngModel)]="localUser.socialLinks.telegram"
+            name="telegram"
+            placeholder="Telegram: @usuario"
+          />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="primary-button">💾 Guardar Cambios</button>
+        <button type="button" class="secondary-button" (click)="cancelEdit()">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- SEZIONE: NOTIFICHE -->
+  <div class="settings-section" *ngIf="activeSection === 'notifications'">
+    <div class="section-header">
+      <h3 class="section-title">Notificaciones</h3>
+      <p class="section-description">
+        Gestiona cómo y cuándo recibes notificaciones
+      </p>
+    </div>
+
+    <div class="settings-list">
+      <div class="setting-item">
+        <div class="setting-info">
+          <h4 class="setting-title">Notificaciones por Email</h4>
+          <p class="setting-description">
+            Recibe actualizaciones importantes por correo
+          </p>
+        </div>
+        <label class="toggle-switch">
+          <input
+            title="Recibir notificaciones importantes por correo electrónico"
+            type="checkbox"
+            [(ngModel)]="notificationPrefs.emailNotifications"
+          />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
+          <h4 class="setting-title">Notificaciones Push</h4>
+          <p class="setting-description">
+            Recibe notificaciones en tiempo real
+          </p>
+        </div>
+        <label class="toggle-switch">
+          <input
+            title="Recibir notificaciones push en el navegador o dispositivo"
+            type="checkbox"
+            [(ngModel)]="notificationPrefs.pushNotifications"
+          />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
+          <h4 class="setting-title">Nuevos Mensajes</h4>
+          <p class="setting-description">Te avisamos cuando recibas mensajes</p>
+        </div>
+        <label class="toggle-switch">
+          <input
+            type="checkbox"
+            [(ngModel)]="notificationPrefs.newMessages"
+            title="Te avisamos cuando recibas mensajes"
+          />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
+          <h4 class="setting-title">Expiración de Anuncios</h4>
+          <p class="setting-description">
+            Aviso antes de que caduquen tus anuncios
+          </p>
+        </div>
+        <label class="toggle-switch">
+          <input
+            type="checkbox"
+            [(ngModel)]="notificationPrefs.adExpiration"
+            title="Recibir notificaciones antes de que caduquen tus anuncios"
+          />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
+          <h4 class="setting-title">Anuncios Relevantes</h4>
+          <p class="setting-description">
+            Nuevos anuncios que te puedan interesar
+          </p>
+        </div>
+        <label class="toggle-switch">
+          <input
+            title="Recibir notificaciones sobre nuevos anuncios que coincidan con tus intereses"
+            type="checkbox"
+            [(ngModel)]="notificationPrefs.newMatchingAds"
+          />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="primary-button" (click)="saveNotifications()">
+        💾 Guardar Preferencias
+      </button>
+    </div>
+  </div>
+
+  <!-- SEZIONE: PRIVACY -->
+  <div class="settings-section" *ngIf="activeSection === 'privacy'">
+    <div class="section-header">
+      <h3 class="section-title">Privacidad</h3>
+      <p class="section-description">Controla quién puede ver tu información</p>
+    </div>
+
+    <div class="settings-list">
+      <div class="setting-item">
+        <div class="setting-info">
+          <h4 class="setting-title">Estado en Línea</h4>
+          <p class="setting-description">Mostrar cuando estés conectado</p>
+        </div>
+        <label class="toggle-switch">
+          <input
+            title="Permitir que otros usuarios vean si estás en línea"
+            type="checkbox"
+            [(ngModel)]="privacySettings.showOnlineStatus"
+          />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
+          <h4 class="setting-title">Última Vez Visto</h4>
+          <p class="setting-description">
+            Mostrar cuándo te conectaste por última vez
+          </p>
+        </div>
+        <label class="toggle-switch">
+          <input
+            type="checkbox"
+            [(ngModel)]="privacySettings.showLastSeen"
+            title="Mostrar cuándo te conectaste por última vez"
+          />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
+          <h4 class="setting-title">Búsqueda por Email</h4>
+          <p class="setting-description">
+            Permitir que te encuentren por correo
+          </p>
+        </div>
+        <label class="toggle-switch">
+          <input
+            title="Permitir que otros usuarios te encuentren usando tu correo electrónico"
+            type="checkbox"
+            [(ngModel)]="privacySettings.allowSearchByEmail"
+          />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
+          <h4 class="setting-title">Búsqueda por Teléfono</h4>
+          <p class="setting-description">
+            Permitir que te encuentren por teléfono
+          </p>
+        </div>
+        <label class="toggle-switch">
+          <input
+            title="Permitir que otros usuarios te encuentren por teléfono"
+            type="checkbox"
+            [(ngModel)]="privacySettings.allowSearchByPhone"
+          />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
+          <h4 class="setting-title">Historial de Transacciones</h4>
+          <p class="setting-description">Mostrar tu historial público</p>
+        </div>
+        <label class="toggle-switch">
+          <input
+            title="Permitir que otros usuarios vean tu historial de transacciones"
+            type="checkbox"
+            [(ngModel)]="privacySettings.showTransactionHistory"
+          />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="primary-button" (click)="savePrivacy()">
+        💾 Guardar Configuración
+      </button>
+    </div>
+  </div>
+
+  <!-- SEZIONE: SICUREZZA -->
+  <div class="settings-section" *ngIf="activeSection === 'security'">
+    <div class="section-header">
+      <h3 class="section-title">Seguridad</h3>
+      <p class="section-description">Protege tu cuenta</p>
+    </div>
+
+    <div class="security-actions">
+      <div class="security-card">
+        <div class="card-icon">🔐</div>
+        <div class="card-content">
+          <h4 class="card-title">Cambiar Contraseña</h4>
+          <p class="card-description">Actualiza tu contraseña regularmente</p>
+        </div>
+        <button class="card-button" (click)="changePassword()">Cambiar</button>
+      </div>
+
+      <div class="security-card">
+        <div class="card-icon">📧</div>
+        <div class="card-content">
+          <h4 class="card-title">Verificar Email</h4>
+          <p class="card-description">
+            {{ user?.isVerified ? "Email verificado ✓" : "Verifica tu correo" }}
+          </p>
+        </div>
+        <button
+          class="card-button"
+          *ngIf="!user?.isVerified"
+          (click)="verifyEmail()"
+        >
+          Verificar
+        </button>
+      </div>
+
+      <div class="security-card">
+        <div class="card-icon">📱</div>
+        <div class="card-content">
+          <h4 class="card-title">Autenticación en Dos Pasos</h4>
+          <p class="card-description">Añade una capa extra de seguridad</p>
+        </div>
+        <button class="card-button" (click)="setup2FA()">Configurar</button>
+      </div>
+
+      <div class="security-card">
+        <div class="card-icon">🔓</div>
+        <div class="card-content">
+          <h4 class="card-title">Sesiones Activas</h4>
+          <p class="card-description">Gestiona tus dispositivos conectados</p>
+        </div>
+        <button class="card-button" (click)="manageSessions()">
+          Ver Sesiones
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEZIONE: CUENTA -->
+  <div class="settings-section" *ngIf="activeSection === 'account'">
+    <div class="section-header">
+      <h3 class="section-title">Gestión de Cuenta</h3>
+      <p class="section-description">Opciones de cuenta y datos</p>
+    </div>
+
+    <div class="account-actions">
+      <div class="account-card">
+        <div class="card-content">
+          <h4 class="card-title">📥 Descargar Mis Datos</h4>
+          <p class="card-description">
+            Descarga una copia de tu información y anuncios
+          </p>
+        </div>
+        <button class="card-button secondary" (click)="downloadData()">
+          Descargar
+        </button>
+      </div>
+
+      <div class="account-card">
+        <div class="card-content">
+          <h4 class="card-title">⏸️ Desactivar Cuenta</h4>
+          <p class="card-description">
+            Oculta tu perfil temporalmente sin perder datos
+          </p>
+        </div>
+        <button class="card-button secondary" (click)="deactivateAccount()">
+          Desactivar
+        </button>
+      </div>
+
+      <div class="account-card danger">
+        <div class="card-content">
+          <h4 class="card-title">🗑️ Eliminar Cuenta</h4>
+          <p class="card-description">
+            Elimina permanentemente tu cuenta y todos tus datos
+          </p>
+        </div>
+        <button class="card-button danger" (click)="deleteAccount()">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
