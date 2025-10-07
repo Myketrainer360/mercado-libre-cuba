@@ -11,7 +11,7 @@ import { ProfileHeaderComponent } from './components/profile-header/profile-head
 import { ProfileTabsComponent } from './components/profile-tabs/profile-tabs.component';
 import { MyAdsListComponent } from './components/my-ads-list/my-ads-list.component';
 import { ReviewsSectionComponent } from './components/reviews-section/reviews-section.component';
-// import { SettingsPanelComponent } from './components/settings-panel/settings-panel.component';
+import { SettingsPanelComponent } from './components/settings-panel/settings-panel.component';
 import { ProfileStatsComponent } from './components/profile-stats/profile-stats.component';
 
 // Modelli
@@ -32,7 +32,7 @@ import { Ad } from '../../models/ad.interface';
     ProfileTabsComponent,
     MyAdsListComponent,
     ReviewsSectionComponent,
-    // SettingsPanelComponent,
+    SettingsPanelComponent,
     ProfileStatsComponent,
   ],
   templateUrl: './profile.component.html',
