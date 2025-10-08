@@ -9,7 +9,7 @@ import {
 } from '../../models/ad.interface';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -18,6 +18,8 @@ import { RouterLink } from '@angular/router';
   styleUrl: './home.component.css',
 })
 export class HomeComponent implements OnInit {
+  constructor(private router: Router) {}
+
   // PROPRIETÀ DEL COMPONENTE
   // Dati degli annunci - in una app reale verranno dal servizio API
   ads: Ad[] = [];
@@ -348,7 +350,7 @@ export class HomeComponent implements OnInit {
     ad.viewCount++;
 
     // Navighiamo alla pagina di dettaglio (da implementare)
-    // this.router.navigate(['/ad', ad.id]);
+    this.router.navigate(['/ad', ad.id]);
   }
 
   toggleFavorite(ad: Ad, event: Event) {

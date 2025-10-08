@@ -36,7 +36,7 @@ export interface Ad {
   type: AdType; // Se è un'offerta o una richiesta
 
   // Informazioni economiche
-  price?: number; // Prezzo (opzionale per annunci gratuiti)
+  price: number; // Prezzo (opzionale per annunci gratuiti)
   currency: Currency; // Valuta del prezzo
   isNegotiable: boolean; // Se il prezzo è trattabile
   exchangeFor?: string; // Cosa si accetta in cambio (per baratti)

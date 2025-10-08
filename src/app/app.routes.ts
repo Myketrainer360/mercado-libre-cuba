@@ -37,6 +37,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'ad/:id', // :id è un parametro dinamico
+    loadComponent: () =>
+      import('./features/ad-detail/ad-detail.component').then(
+        (m) => m.AdDetailComponent
+      ),
+  },
+  {
     path: 'messages',
     loadComponent: () =>
       import('./features/messages/messages.component').then(

@@ -1,0 +1,572 @@
+<!-- ==========================================
+     AD DETAIL COMPONENT - TEMPLATE HTML
+     ========================================== -->
+
+<div class="ad-detail-page">
+  <!-- LOADING STATE -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Cargando anuncio...</p>
+  </div>
+
+  <!-- ERROR STATE -->
+  <div class="error-container" *ngIf="error && !isLoading">
+    <div class="error-icon">⚠️</div>
+    <h2>{{ error }}</h2>
+    <button class="retry-button" (click)="loadAdDetails()">Reintentar</button>
+    <button class="back-button" (click)="goBack()">Volver</button>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="ad-detail-container" *ngIf="!isLoading && !error && ad">
+    <!-- BREADCRUMBS -->
+    <nav class="breadcrumbs">
+      <a routerLink="/" class="breadcrumb-item">Inicio</a>
+      <span class="breadcrumb-separator">›</span>
+      <a
+        [routerLink]="['/search']"
+        [queryParams]="{ category: ad.category }"
+        class="breadcrumb-item"
+      >
+        {{ getCategoryLabel(ad.category) }}
+      </a>
+      <span class="breadcrumb-separator">›</span>
+      <span class="breadcrumb-current">{{ ad.title }}</span>
+    </nav>
+
+    <!-- MAIN GRID LAYOUT -->
+    <div class="detail-grid">
+      <!-- LEFT COLUMN: IMAGES AND DETAILS -->
+      <div class="left-column">
+        <!-- GALLERY SECTION -->
+        <section class="gallery-section">
+          <!-- Main Image -->
+          <div class="main-image-container">
+            <img
+              alt="Imagen Principal"
+              [src]="
+                ad.images[currentImageIndex] || '/assets/images/no-image.png'
+              "
+              [alt]="ad.title"
+              class="main-image"
+              (click)="openImageModal()"
+            />
+
+            <!-- Navigation Arrows -->
+            <button
+              class="nav-arrow prev"
+              *ngIf="ad.images.length > 1"
+              (click)="previousImage()"
+              aria-label="Imagen anterior"
+            >
+              ‹
+            </button>
+            <button
+              class="nav-arrow next"
+              *ngIf="ad.images.length > 1"
+              (click)="nextImage()"
+              aria-label="Siguiente imagen"
+            >
+              ›
+            </button>
+
+            <!-- Image Counter -->
+            <div class="image-counter" *ngIf="ad.images.length > 1">
+              {{ currentImageIndex + 1 }} / {{ ad.images.length }}
+            </div>
+
+            <!-- Badges -->
+            <div class="image-badges">
+              <span class="type-badge" [class]="ad.type">
+                {{ ad.type === "offer" ? "💰 OFREZCO" : "🔍 BUSCO" }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Thumbnails -->
+          <div class="thumbnails-container" *ngIf="ad.images.length > 1">
+            <div
+              class="thumbnail"
+              *ngFor="let image of ad.images; let i = index"
+              [class.active]="i === currentImageIndex"
+              (click)="selectImage(i)"
+            >
+              <img alt="Thumbnail" [src]="image" [alt]="'Imagen ' + (i + 1)" />
+            </div>
+          </div>
+        </section>
+
+        <!-- AD INFORMATION -->
+        <section class="ad-info-section">
+          <!-- Title and Price -->
+          <div class="ad-header">
+            <h1 class="ad-title">{{ ad.title }}</h1>
+
+            <div class="ad-price-section">
+              <div class="price-container" *ngIf="ad.price">
+                <span class="price-amount">{{ formatPrice(ad.price) }}</span>
+                <span class="price-currency">{{ ad.currency }}</span>
+                <span class="price-negotiable" *ngIf="ad.isNegotiable"
+                  >Negociable</span
+                >
+              </div>
+              <div class="price-free" *ngIf="!ad.price">
+                <span class="free-label">Gratis</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Meta Info -->
+          <div class="ad-meta">
+            <div class="meta-item">
+              <span class="meta-icon">📍</span>
+              <span class="meta-text"
+                >{{ ad.location.city }}, {{ ad.location.province }}</span
+              >
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">📅</span>
+              <span class="meta-text"
+                >Publicado {{ getTimeAgo(ad.createdAt) }}</span
+              >
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">🏷️</span>
+              <span class="meta-text">{{ getCategoryLabel(ad.category) }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">👁️</span>
+              <span class="meta-text">{{ ad.viewCount }} visualizaciones</span>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="ad-description">
+            <h2 class="section-title">Descripción</h2>
+            <p class="description-text">{{ ad.description }}</p>
+          </div>
+
+          <!-- Details -->
+          <div class="ad-details" *ngIf="ad.condition || ad.deliveryOptions">
+            <h2 class="section-title">Detalles</h2>
+
+            <div class="details-grid">
+              <div class="detail-row" *ngIf="ad.condition">
+                <span class="detail-label">Condición:</span>
+                <span class="detail-value">{{ ad.condition }}</span>
+              </div>
+
+              <div
+                class="detail-row"
+                *ngIf="ad.deliveryOptions && ad.deliveryOptions.length > 0"
+              >
+                <span class="detail-label">Entrega:</span>
+                <span class="detail-value">
+                  <span
+                    *ngFor="let option of ad.deliveryOptions; let last = last"
+                  >
+                    {{ option }}<span *ngIf="!last">, </span>
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <div class="ad-tags" *ngIf="ad.tags && ad.tags.length > 0">
+            <h2 class="section-title">Tags</h2>
+            <div class="tags-container">
+              <span class="tag" *ngFor="let tag of ad.tags"> #{{ tag }} </span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- RIGHT COLUMN: SELLER AND ACTIONS -->
+      <div class="right-column">
+        <!-- SELLER CARD -->
+        <section class="seller-card">
+          <div class="seller-loading" *ngIf="isLoadingSeller">
+            <div class="skeleton-avatar"></div>
+            <div class="skeleton-lines">
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line short"></div>
+            </div>
+          </div>
+
+          <div class="seller-content" *ngIf="!isLoadingSeller && seller">
+            <div class="seller-header" (click)="viewSellerProfile()">
+              <img
+                alt="Contenido Vendedor"
+                [src]="seller.avatar || '/assets/images/default-avatar.png'"
+                [alt]="seller.displayName"
+                class="seller-avatar"
+              />
+
+              <div class="seller-info">
+                <h3 class="seller-name">
+                  {{ seller.displayName }}
+                  <span class="verified-badge" *ngIf="seller.isVerified"
+                    >✓</span
+                  >
+                </h3>
+                <p class="seller-username">{{ seller.username }}</p>
+
+                <div
+                  class="seller-rating"
+                  *ngIf="seller.rating && seller.rating.totalReviews > 0"
+                >
+                  <div class="stars">
+                    <span
+                      *ngFor="
+                        let star of getStarsArray(seller.rating.averageRating)
+                      "
+                      class="star"
+                      [class.filled]="star.filled"
+                      [class.half]="star.half"
+                    >
+                      {{ star.filled ? "⭐" : star.half ? "⭐" : "☆" }}
+                    </span>
+                  </div>
+                  <span class="rating-text">
+                    {{ seller.rating.averageRating.toFixed(1) }}
+                    ({{ seller.rating.totalReviews }})
+                  </span>
+                </div>
+              </div>
+
+              <div class="online-indicator" *ngIf="seller.isOnline"></div>
+            </div>
+
+            <div class="seller-stats">
+              <div class="stat-item">
+                <span class="stat-value">{{ seller.totalTransactions }}</span>
+                <span class="stat-label">Ventas</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <span class="stat-value">{{ seller.responseTime }}</span>
+                <span class="stat-label">Responde</span>
+              </div>
+            </div>
+
+            <div class="seller-location">
+              <span class="location-icon">📍</span>
+              <span
+                >{{ seller.location.city }},
+                {{ seller.location.province }}</span
+              >
+            </div>
+          </div>
+        </section>
+
+        <!-- ACTION BUTTONS -->
+        <section class="action-buttons">
+          <!-- Owner Actions -->
+          <div class="owner-actions" *ngIf="isOwner">
+            <button class="action-btn primary full" (click)="editAd()">
+              <span class="btn-icon">✏️</span>
+              Editar Anuncio
+            </button>
+
+            <div class="button-group">
+              <button class="action-btn secondary" (click)="pauseAd()">
+                ⏸️ Pausar
+              </button>
+              <button class="action-btn secondary" (click)="markAsSold()">
+                ✔️ Vendido
+              </button>
+            </div>
+
+            <button class="action-btn danger full" (click)="deleteAd()">
+              🗑️ Eliminar
+            </button>
+          </div>
+
+          <!-- Visitor Actions -->
+          <div class="visitor-actions" *ngIf="!isOwner">
+            <button class="action-btn primary full" (click)="contactSeller()">
+              <span class="btn-icon">💬</span>
+              Contactar Vendedor
+            </button>
+
+            <div class="button-group">
+              <button
+                class="action-btn icon-btn"
+                [class.active]="isFavorite"
+                (click)="toggleFavorite()"
+                [attr.title]="
+                  isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'
+                "
+              >
+                <span class="btn-icon">{{ isFavorite ? "❤️" : "🤍" }}</span>
+              </button>
+
+              <button
+                class="action-btn icon-btn"
+                (click)="shareAd()"
+                title="Compartir"
+              >
+                <span class="btn-icon">🔗</span>
+              </button>
+
+              <button
+                class="action-btn icon-btn"
+                (click)="reportAd()"
+                title="Reportar"
+              >
+                <span class="btn-icon">⚠️</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- SAFETY TIPS -->
+        <section class="safety-tips">
+          <h3 class="tips-title">💡 Consejos de Seguridad</h3>
+          <ul class="tips-list">
+            <li>Reúnete en lugares públicos</li>
+            <li>Verifica el producto antes de pagar</li>
+            <li>Desconfía de precios muy bajos</li>
+            <li>No compartas información personal</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <!-- RELATED ADS -->
+    <section class="related-ads-section">
+      <h2 class="section-title">Anuncios Relacionados</h2>
+
+      <div class="related-loading" *ngIf="isLoadingRelated">
+        <div class="skeleton-card" *ngFor="let i of [1, 2, 3]"></div>
+      </div>
+
+      <div
+        class="related-grid"
+        *ngIf="!isLoadingRelated && relatedAds.length > 0"
+      >
+        <article
+          class="related-card"
+          *ngFor="let relatedAd of relatedAds"
+          (click)="viewRelatedAd(relatedAd.id)"
+        >
+          <div class="related-image">
+            <img
+              alt="Imagen Relacionada"
+              [src]="relatedAd.images[0]"
+              [alt]="relatedAd.title"
+            />
+          </div>
+
+          <div class="related-content">
+            <h4 class="related-title">{{ relatedAd.title }}</h4>
+            <p class="related-price">
+              {{ formatPrice(relatedAd.price) }} {{ relatedAd.currency }}
+            </p>
+            <p class="related-location">📍 {{ relatedAd.location.city }}</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==========================================
+       MODAL: CONTACT SELLER
+       ========================================== -->
+
+  <div
+    class="modal-overlay"
+    *ngIf="showContactModal"
+    (click)="closeContactModal()"
+  >
+    <div class="modal-content contact-modal" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeContactModal()">×</button>
+
+      <h2 class="modal-title">Contactar Vendedor</h2>
+
+      <div class="contact-options">
+        <button class="contact-option" (click)="sendMessage()">
+          <span class="option-icon">💬</span>
+          <div class="option-content">
+            <span class="option-title">Enviar Mensaje</span>
+            <span class="option-description">Chat interno seguro</span>
+          </div>
+        </button>
+
+        <button class="contact-option" (click)="revealPhoneNumber()">
+          <span class="option-icon">📱</span>
+          <div class="option-content">
+            <span class="option-title">Ver Teléfono</span>
+            <span class="option-description" *ngIf="!showPhoneNumber">
+              Click para revelar
+            </span>
+            <span class="option-phone" *ngIf="showPhoneNumber">
+              {{ seller?.phone || "+53 5555 1234" }}
+            </span>
+          </div>
+        </button>
+
+        <button
+          class="contact-option"
+          (click)="callSeller()"
+          *ngIf="showPhoneNumber"
+        >
+          <span class="option-icon">☎️</span>
+          <div class="option-content">
+            <span class="option-title">Llamar Ahora</span>
+            <span class="option-description">Llamada directa</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: SHARE
+       ========================================== -->
+
+  <div class="modal-overlay" *ngIf="showShareModal" (click)="closeShareModal()">
+    <div class="modal-content share-modal" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeShareModal()">×</button>
+
+      <h2 class="modal-title">Compartir Anuncio</h2>
+
+      <div class="share-options">
+        <button class="share-option whatsapp" (click)="shareOnWhatsApp()">
+          <span class="share-icon">📱</span>
+          <span>WhatsApp</span>
+        </button>
+
+        <button class="share-option telegram" (click)="shareOnTelegram()">
+          <span class="share-icon">✈️</span>
+          <span>Telegram</span>
+        </button>
+
+        <button class="share-option copy" (click)="copyLink()">
+          <span class="share-icon">🔗</span>
+          <span>Copiar Link</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: REPORT
+       ========================================== -->
+
+  <div
+    class="modal-overlay"
+    *ngIf="showReportModal"
+    (click)="closeReportModal()"
+  >
+    <div class="modal-content report-modal" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeReportModal()">×</button>
+
+      <h2 class="modal-title">Reportar Anuncio</h2>
+
+      <p class="modal-description">¿Por qué reportas este anuncio?</p>
+
+      <div class="report-reasons">
+        <label class="reason-option">
+          <input
+            type="radio"
+            name="reason"
+            value="spam"
+            [(ngModel)]="reportReason"
+          />
+          <span>Spam o publicidad engañosa</span>
+        </label>
+
+        <label class="reason-option">
+          <input
+            type="radio"
+            name="reason"
+            value="scam"
+            [(ngModel)]="reportReason"
+          />
+          <span>Posible estafa</span>
+        </label>
+
+        <label class="reason-option">
+          <input
+            type="radio"
+            name="reason"
+            value="inappropriate"
+            [(ngModel)]="reportReason"
+          />
+          <span>Contenido inapropiado</span>
+        </label>
+
+        <label class="reason-option">
+          <input
+            type="radio"
+            name="reason"
+            value="duplicate"
+            [(ngModel)]="reportReason"
+          />
+          <span>Anuncio duplicado</span>
+        </label>
+
+        <label class="reason-option">
+          <input
+            type="radio"
+            name="reason"
+            value="other"
+            [(ngModel)]="reportReason"
+          />
+          <span>Otro motivo</span>
+        </label>
+      </div>
+
+      <button
+        class="submit-report-btn"
+        [disabled]="!reportReason"
+        (click)="submitReport()"
+      >
+        Enviar Reporte
+      </button>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL: IMAGE GALLERY
+       ========================================== -->
+
+  <div
+    class="image-modal-overlay"
+    *ngIf="showImageModal"
+    (click)="closeImageModal()"
+  >
+    <button class="modal-close white" (click)="closeImageModal()">×</button>
+
+    <div class="image-modal-content" (click)="$event.stopPropagation()">
+      <img
+        alt="Imagen Modal"
+        [src]="ad!.images[currentImageIndex]"
+        [alt]="ad?.title"
+        class="modal-image"
+      />
+
+      <button
+        class="modal-nav-arrow prev"
+        *ngIf="ad && ad.images.length > 1"
+        (click)="previousImage(); $event.stopPropagation()"
+      >
+        ‹
+      </button>
+
+      <button
+        class="modal-nav-arrow next"
+        *ngIf="ad && ad.images.length > 1"
+        (click)="nextImage(); $event.stopPropagation()"
+      >
+        ›
+      </button>
+
+      <div class="modal-image-counter">
+        {{ currentImageIndex + 1 }} / {{ ad?.images?.length }}
+      </div>
+    </div>
+  </div>
+</div>
