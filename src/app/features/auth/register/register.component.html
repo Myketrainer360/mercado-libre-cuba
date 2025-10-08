@@ -1,0 +1,320 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <!-- Logo e Header -->
+    <div class="auth-header">
+      <div class="logo">
+        <span class="logo-icon">🇨🇺</span>
+        <h1 class="logo-text">Mercado Cubano</h1>
+      </div>
+      <h2 class="auth-title">Crear cuenta</h2>
+      <p class="auth-subtitle">Únete a nuestra comunidad</p>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="progress-steps">
+      <div
+        class="step"
+        [class.active]="currentStep >= 1"
+        [class.completed]="currentStep > 1"
+      >
+        <div class="step-number">1</div>
+        <div class="step-label">Datos</div>
+      </div>
+      <div class="step-line" [class.completed]="currentStep > 1"></div>
+      <div
+        class="step"
+        [class.active]="currentStep >= 2"
+        [class.completed]="currentStep > 2"
+      >
+        <div class="step-number">2</div>
+        <div class="step-label">Ubicación</div>
+      </div>
+      <div class="step-line" [class.completed]="currentStep > 2"></div>
+      <div class="step" [class.active]="currentStep >= 3">
+        <div class="step-number">3</div>
+        <div class="step-label">Contraseña</div>
+      </div>
+    </div>
+
+    <!-- Form di Registrazione -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <!-- STEP 1: Dati Personali -->
+      <div *ngIf="currentStep === 1" class="step-content" @slideIn>
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email" class="form-label">Correo electrónico *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📧</span>
+            <input
+              type="email"
+              id="email"
+              formControlName="email"
+              class="form-input"
+              placeholder="tu@email.com"
+              [class.error]="isFieldInvalid('email')"
+            />
+          </div>
+          <div class="error-message" *ngIf="isFieldInvalid('email')">
+            <span *ngIf="registerForm.get('email')?.errors?.['required']">
+              El correo es requerido
+            </span>
+            <span *ngIf="registerForm.get('email')?.errors?.['email']">
+              Ingresa un correo válido
+            </span>
+          </div>
+        </div>
+
+        <!-- Username -->
+        <div class="form-group">
+          <label for="username" class="form-label">Nombre de usuario *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input
+              type="text"
+              id="username"
+              formControlName="username"
+              class="form-input"
+              placeholder="usuario123"
+              [class.error]="isFieldInvalid('username')"
+            />
+          </div>
+          <div class="error-message" *ngIf="isFieldInvalid('username')">
+            <span *ngIf="registerForm.get('username')?.errors?.['required']">
+              El nombre de usuario es requerido
+            </span>
+            <span *ngIf="registerForm.get('username')?.errors?.['minlength']">
+              Mínimo 3 caracteres
+            </span>
+            <span *ngIf="registerForm.get('username')?.errors?.['pattern']">
+              Solo letras, números y guiones
+            </span>
+          </div>
+        </div>
+
+        <!-- Display Name -->
+        <div class="form-group">
+          <label for="displayName" class="form-label">Nombre completo *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">✨</span>
+            <input
+              type="text"
+              id="displayName"
+              formControlName="displayName"
+              class="form-input"
+              placeholder="Juan Pérez"
+              [class.error]="isFieldInvalid('displayName')"
+            />
+          </div>
+          <div class="error-message" *ngIf="isFieldInvalid('displayName')">
+            <span>El nombre es requerido</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Ubicación -->
+      <div *ngIf="currentStep === 2" class="step-content" @slideIn>
+        <!-- Provincia -->
+        <div class="form-group">
+          <label for="province" class="form-label">Provincia *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🏝️</span>
+            <select
+              id="province"
+              formControlName="province"
+              class="form-input"
+              [class.error]="isFieldInvalid('province')"
+            >
+              <option value="">Selecciona tu provincia</option>
+              <option *ngFor="let prov of provinces" [value]="prov">
+                {{ prov }}
+              </option>
+            </select>
+          </div>
+          <div class="error-message" *ngIf="isFieldInvalid('province')">
+            <span>La provincia es requerida</span>
+          </div>
+        </div>
+
+        <!-- Ciudad -->
+        <div class="form-group">
+          <label for="city" class="form-label">Ciudad/Municipio *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📍</span>
+            <input
+              type="text"
+              id="city"
+              formControlName="city"
+              class="form-input"
+              placeholder="Ej: Vedado, Centro Habana..."
+              [class.error]="isFieldInvalid('city')"
+            />
+          </div>
+          <div class="error-message" *ngIf="isFieldInvalid('city')">
+            <span>La ciudad es requerida</span>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <span class="info-icon">💡</span>
+          <p class="info-text">
+            Tu ubicación ayudará a otros usuarios a encontrarte más fácilmente
+          </p>
+        </div>
+      </div>
+
+      <!-- STEP 3: Contraseña -->
+      <div *ngIf="currentStep === 3" class="step-content" @slideIn>
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password" class="form-label">Contraseña *</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔒</span>
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              formControlName="password"
+              class="form-input"
+              placeholder="••••••••"
+              [class.error]="isFieldInvalid('password')"
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              (click)="togglePasswordVisibility()"
+            >
+              {{ showPassword ? "👁️" : "👁️‍🗨️" }}
+            </button>
+          </div>
+          <div
+            class="password-strength"
+            *ngIf="registerForm.get('password')?.value"
+          >
+            <div class="strength-bar">
+              <div class="strength-fill" [class]="passwordStrength"></div>
+            </div>
+            <span class="strength-text">{{ getPasswordStrengthText() }}</span>
+          </div>
+          <div class="error-message" *ngIf="isFieldInvalid('password')">
+            <span *ngIf="registerForm.get('password')?.errors?.['required']">
+              La contraseña es requerida
+            </span>
+            <span *ngIf="registerForm.get('password')?.errors?.['minlength']">
+              Mínimo 8 caracteres
+            </span>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label for="confirmPassword" class="form-label"
+            >Confirmar contraseña *</label
+          >
+          <div class="input-wrapper">
+            <span class="input-icon">🔐</span>
+            <input
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              id="confirmPassword"
+              formControlName="confirmPassword"
+              class="form-input"
+              placeholder="••••••••"
+              [class.error]="isFieldInvalid('confirmPassword')"
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              (click)="toggleConfirmPasswordVisibility()"
+            >
+              {{ showConfirmPassword ? "👁️" : "👁️‍🗨️" }}
+            </button>
+          </div>
+          <div class="error-message" *ngIf="isFieldInvalid('confirmPassword')">
+            <span
+              *ngIf="registerForm.get('confirmPassword')?.errors?.['required']"
+            >
+              Confirma tu contraseña
+            </span>
+            <span *ngIf="registerForm.errors?.['passwordMismatch']">
+              Las contraseñas no coinciden
+            </span>
+          </div>
+        </div>
+
+        <!-- Terms & Conditions -->
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              formControlName="acceptTerms"
+              class="checkbox-input"
+            />
+            <span class="checkbox-text">
+              Acepto los <a href="#" class="link">términos y condiciones</a> y
+              la <a href="#" class="link">política de privacidad</a>
+            </span>
+          </label>
+          <div class="error-message" *ngIf="isFieldInvalid('acceptTerms')">
+            <span>Debes aceptar los términos</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error generale -->
+      <div class="alert alert-error" *ngIf="errorMessage">
+        <span class="alert-icon">⚠️</span>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <!-- Bottoni Navigazione -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="secondary-button"
+          *ngIf="currentStep > 1"
+          (click)="previousStep()"
+          [disabled]="isLoading"
+        >
+          ← Atrás
+        </button>
+
+        <button
+          type="button"
+          class="primary-button"
+          *ngIf="currentStep < 3"
+          (click)="nextStep()"
+          [disabled]="!canProceedToNextStep()"
+        >
+          Siguiente →
+        </button>
+
+        <button
+          type="submit"
+          class="primary-button"
+          *ngIf="currentStep === 3"
+          [disabled]="isLoading || registerForm.invalid"
+          [class.loading]="isLoading"
+        >
+          <span *ngIf="!isLoading">Crear cuenta</span>
+          <span *ngIf="isLoading">
+            <span class="spinner"></span>
+            Creando cuenta...
+          </span>
+        </button>
+      </div>
+    </form>
+
+    <!-- Link to Login -->
+    <div class="auth-footer">
+      <p class="footer-text">
+        ¿Ya tienes cuenta?
+        <a routerLink="/login" class="footer-link">Inicia sesión</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Decorative Background -->
+  <div class="auth-background">
+    <div class="bg-circle circle-1"></div>
+    <div class="bg-circle circle-2"></div>
+    <div class="bg-circle circle-3"></div>
+  </div>
+</div>

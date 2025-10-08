@@ -1,0 +1,143 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <!-- Logo e Header -->
+    <div class="auth-header">
+      <div class="logo">
+        <span class="logo-icon">🇨🇺</span>
+        <h1 class="logo-text">Mercado Cubano</h1>
+      </div>
+      <h2 class="auth-title">¡Bienvenido de nuevo!</h2>
+      <p class="auth-subtitle">Inicia sesión para continuar</p>
+    </div>
+
+    <!-- Form di Login -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email" class="form-label">Correo electrónico</label>
+        <div class="input-wrapper">
+          <span class="input-icon">📧</span>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            class="form-input"
+            placeholder="tu@email.com"
+            [class.error]="isFieldInvalid('email')"
+          />
+        </div>
+        <div class="error-message" *ngIf="isFieldInvalid('email')">
+          <span *ngIf="loginForm.get('email')?.errors?.['required']">
+            El correo es requerido
+          </span>
+          <span *ngIf="loginForm.get('email')?.errors?.['email']">
+            Ingresa un correo válido
+          </span>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password" class="form-label">Contraseña</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            formControlName="password"
+            class="form-input"
+            placeholder="••••••••"
+            [class.error]="isFieldInvalid('password')"
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="
+              showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'
+            "
+          >
+            {{ showPassword ? "👁️" : "👁️‍🗨️" }}
+          </button>
+        </div>
+        <div class="error-message" *ngIf="isFieldInvalid('password')">
+          <span *ngIf="loginForm.get('password')?.errors?.['required']">
+            La contraseña es requerida
+          </span>
+          <span *ngIf="loginForm.get('password')?.errors?.['minlength']">
+            Mínimo 6 caracteres
+          </span>
+        </div>
+      </div>
+
+      <!-- Remember Me y Forgot Password -->
+      <div class="form-options">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            formControlName="rememberMe"
+            class="checkbox-input"
+          />
+          <span class="checkbox-text">Recordarme</span>
+        </label>
+        <a routerLink="/password-reset" class="forgot-link">
+          ¿Olvidaste tu contraseña?
+        </a>
+      </div>
+
+      <!-- Error generale -->
+      <div class="alert alert-error" *ngIf="errorMessage">
+        <span class="alert-icon">⚠️</span>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <!-- Success message -->
+      <div class="alert alert-success" *ngIf="successMessage">
+        <span class="alert-icon">✅</span>
+        <span>{{ successMessage }}</span>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="submit-button"
+        [disabled]="isLoading || loginForm.invalid"
+        [class.loading]="isLoading"
+      >
+        <span *ngIf="!isLoading">Iniciar Sesión</span>
+        <span *ngIf="isLoading">
+          <span class="spinner"></span>
+          Iniciando sesión...
+        </span>
+      </button>
+    </form>
+
+    <!-- Divider -->
+    <div class="divider">
+      <span class="divider-text">o</span>
+    </div>
+
+    <!-- Social Login (opzionale) -->
+    <div class="social-login">
+      <button type="button" class="social-button google" disabled>
+        <span class="social-icon">G</span>
+        Continuar con Google
+      </button>
+    </div>
+
+    <!-- Link to Register -->
+    <div class="auth-footer">
+      <p class="footer-text">
+        ¿No tienes cuenta?
+        <a routerLink="/register" class="footer-link">Regístrate gratis</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Decorative Background -->
+  <div class="auth-background">
+    <div class="bg-circle circle-1"></div>
+    <div class="bg-circle circle-2"></div>
+    <div class="bg-circle circle-3"></div>
+  </div>
+</div>
